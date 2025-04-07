@@ -1,0 +1,16 @@
+# Ignorer le fichier .env (contient des informations sensibles)
+.env
+
+# Ignorer les répertoires de dépendances Node.js
+node_modules/
+
+# Ignorer les fichiers de log
+*.log
+
+# Ignorer les fichiers temporaires ou de compilation
+*.tmp
+*.bak
+
+# Ignorer les dossiers de tests ou de couverture
+coverage/
+test/
