@@ -184,4 +184,270 @@ export const getUser = async (req, res) => {
   }
 };
 
+// fonction d'oublier le mot de passe
+export const forgetPassword = async (req, res) => {
+  const { num_tel } = req.body;
+  try {
+    const user = await User.findOne({ where: { num_tel } });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    const otp = generateOTP();
+    const otpExpires = new Date();
+    otpExpires.setMinutes(otpExpires.getMinutes() + 10);
+
+    await User.update({ otp_code: otp, otp_expires: otpExpires }, { where: { num_tel } });
+
+    await client.messages.create({
+      body: `Votre code de réinitialisation de mot de passe est : ${otp}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: num_tel
+    });
+
+    res.status(200).json({
+      message: 'Un code a été envoyé pour réinitialiser le mot de passe ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de l’envoi du code ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+// fonction de réinitialisation du mot de passe
+export const resetPassword = async (req, res) => {
+  const { num_tel, otp_code, new_password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { num_tel } });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    if (user.otp_code !== otp_code) {
+      return res.status(400).json({ message: 'Code OTP incorrect ❌' });
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    await User.update({ password: hashedPassword, otp_code: null, otp_expires: null }, { where: { num_tel } });
+
+    res.status(200).json({
+      message: 'Mot de passe réinitialisé avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la réinitialisation du mot de passe ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+// fonction de suppression de compte  
+export const deleteAccount = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    await User.destroy({ where: { id } });
+    res.status(200).json({
+      message: 'Compte supprimé avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+// fonction de mise à jour de compte  
+export const updateAccount = async (req, res) => {
+  const { id } = req.params;
+  const { full_name, num_tel, ville, pays, password } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    await User.update({ full_name, num_tel, ville, pays, password }, { where: { id } });
+    res.status(200).json({
+      message: 'Compte mis à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du compte ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+// fonction de mise à jour de mot de passe
+export const updatePassword = async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.update({ password: hashedPassword }, { where: { id } });
+    res.status(200).json({
+      message: 'Mot de passe mis à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du mot de passe ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+};
+// Fonction de déconnexion
+export const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Erreur lors de la déconnexion ❌:', err);
+      return res.status(500).json({ message: 'Erreur serveur' });
+    }
+
+    // Réponse de déconnexion réussie après avoir détruit la session
+    res.status(200).json({ message: 'Déconnexion réussie ✅' });
+  });
+};
+
+// fonction de changement de numéro de téléphone
+export const changePhone = async (req, res) => {
+  const { id } = req.params;
+  const { new_num_tel } = req.body; 
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    // Vérification du format du nouveau numéro de téléphone
+    if (!validatePhoneNumber(new_num_tel)) {
+      return res.status(400).json({ message: 'Numéro de téléphone invalide' });
+    }
+
+    await User.update({ num_tel: new_num_tel }, { where: { id } });
+    res.status(200).json({
+      message: 'Numéro de téléphone mis à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du numéro de téléphone ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+}
+// fonction de changement de ville
+export const changeCity = async (req, res) => {
+  const { id } = req.params;
+  const { new_ville } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    await User.update({ ville: new_ville }, { where: { id } });
+    res.status(200).json({
+      message: 'Ville mise à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la ville ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+}
+// fonction de changement de pays
+export const changeCountry = async (req, res) => {
+  const { id } = req.params;
+  const { new_pays } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    await User.update({ pays: new_pays }, { where: { id } });
+    res.status(200).json({
+      message: 'Pays mis à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du pays ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+}
+// fonction de changement de nom
+export const changeName = async (req, res) => {
+  const { id } = req.params;
+  const { new_full_name } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    await User.update({ full_name: new_full_name }, { where: { id } });
+    res.status(200).json({
+      message: 'Nom mis à jour avec succès ✅',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du nom ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message
+    });
+  }
+}
+
+// fonction de récupération de tous les utilisateurs
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password', 'otp_code', 'otp_expires'] } // Masquer ces champs sensibles
+    });
+    res.status(200).json({
+      message: 'Tous les utilisateurs récupérés avec succès ✅',
+      users
+    });
+  } catch (err) {
+    console.error('Erreur lors de la récupération des utilisateurs ❌:', err);
+    res.status(500).json({ message: 'Erreur serveur', error: err.message });
+  }
+};
+// fonction de récupération de l'utilisateur connecté
+export const getConnectedUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password', 'otp_code', 'otp_expires'] } // Masquer ces champs sensibles
+    });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
+
+    res.status(200).json({
+      message: 'Utilisateur connecté récupéré avec succès ✅',
+      user
+    });
+  }
+  catch (err) {
+    console.error('Erreur lors de la récupération de l’utilisateur connecté ❌:', err);
+    res.status(500).json({ message: 'Erreur serveur', error: err.message });
+  }
+}
+
+
 
