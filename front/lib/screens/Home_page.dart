@@ -6,6 +6,8 @@ import 'package:bitakati_app/widgets/custom_appBar.dart';
 import 'package:bitakati_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
+import 'package:bitakati_app/widgets/notifications_bar.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,6 +49,9 @@ class _HomePageState extends State<HomePage> {
                 'images/wheat3.png',
               ],
             ),
+
+            NotificationsBar(notificationMsg: 'مرحبا بك! هل ترغب في رؤية تنبيهات جديدة؟'),
+
             const SizedBox(height: 10),
             // Deuxième carte (Produit agricole)
             BuildPostCard(
@@ -72,5 +77,5 @@ class _HomePageState extends State<HomePage> {
       ),
       );
   }
-}
 
+}
