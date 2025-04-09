@@ -6,7 +6,9 @@ import 'package:bitakati_app/widgets/custom_appBar.dart';
 import 'package:bitakati_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
-import 'package:bitakati_app/widgets/notifications_bar.dart';
+
+
+
 
 
 class HomePage extends StatefulWidget {

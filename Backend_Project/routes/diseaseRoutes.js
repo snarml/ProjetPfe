@@ -6,3 +6,5 @@ router.get('/diseases', diseaseController.getDiseases);
 router.get('/diseases/:id', diseaseController.getDiseaseById);
 
 module.exports = router;
+
+
