@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const diseasesFilePath = path.join(__dirname, '../data/diseases.json');
+const diseasesFilePath = path.join('Backend_Project\data\diseases.js');
 
 const getAllDiseases = () => {
     const data = fs.readFileSync(diseasesFilePath);

@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
 
-            NotificationsBar(notificationMsg: 'مرحبا بك! هل ترغب في رؤية تنبيهات جديدة؟'),
+           
 
             const SizedBox(height: 10),
             // Deuxième carte (Produit agricole)
