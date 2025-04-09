@@ -16,6 +16,7 @@ const sequelize = new Sequelize(
   }
 );
 
+
 // Fonction pour se connecter à la base de données
 export const connectDatabase = async () => {
   try {
