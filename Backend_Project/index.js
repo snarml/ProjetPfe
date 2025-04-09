@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
   res.send('Bienvenue sur l\'API');
 });
 
+
 // Utilisation des routes pour les utilisateurs
 app.use('/api',userRoutes);
 
@@ -25,3 +26,4 @@ const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
+
