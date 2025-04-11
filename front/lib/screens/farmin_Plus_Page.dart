@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class farmingPlusPage extends StatelessWidget {
-  const farmingPlusPage({Key? key}) : super(key: key);
+  const farmingPlusPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class farmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'وقاية و أمراض النباتات',
-            imagePath: 'front\images\diseases.png',
+            imagePath: 'front/images/diseases.png',
             onTap: () {
               Navigator.pushNamed(context, '/diseases'); 
             },
@@ -26,7 +26,7 @@ class farmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'قائمة المبيدات و استعمالاتها',
-            imagePath: 'assets/images/pesticides.png',
+            imagePath: 'front/images/pesticides.png',
             onTap: () {
               Navigator.pushNamed(context, '/pesticides'); 
             },
@@ -35,7 +35,7 @@ class farmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'حلول لتطبيق جيد',
-            imagePath: 'assets/images/solutions.png',
+            imagePath: 'front/images/solutions.png',
             onTap: () {
               Navigator.pushNamed(context, '/solutions'); 
             },
@@ -44,7 +44,7 @@ class farmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'الأسمدة حسب التربة',
-            imagePath: 'assets/images/fertilizer.png',
+            imagePath: 'front\images\fertilizers.png',
             onTap: () {
               Navigator.pushNamed(context, '/fertilizer'); 
             },

@@ -16,7 +16,6 @@ import 'package:bitakati_app/screens/signIn/welcome_page.dart';
 import 'package:bitakati_app/screens/storePage.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:get/get.dart';
-import 'package:bitakati_app/screens/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/diseases_page.dart';
 import 'package:bitakati_app/screens/pesticides_page.dart';
 import 'package:bitakati_app/screens/solutions_page.dart';
