@@ -6,10 +6,19 @@ class Role extends StatelessWidget {
   const Role({super.key});
 
   void _handleRoleSelection(BuildContext context, String role) {
-  
+  if (role == 'فلاح') {
+    // Redirection uniquement pour le rôle "فلاح"
     Get.toNamed('/login', arguments: role);
+  } else {
+    // Afficher un message pour les autres rôles
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('ميزة تسجيل الدخول متاحة حالياً فقط للفلاحين'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   }
-
+}
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(360, 690), minTextAdapt: true);

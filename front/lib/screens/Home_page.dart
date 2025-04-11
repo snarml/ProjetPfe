@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:bitakati_app/screens/NavBar.dart';
 import 'package:bitakati_app/widgets/build_post_card.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
@@ -7,7 +8,6 @@ import 'package:bitakati_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:bitakati_app/widgets/notifications_bar.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,15 +29,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: CustomAppbar(),
+      drawer: Drawer(
+        child: NavBar()), 
       body: SingleChildScrollView(
         child: Column(
           children: [
-            CustomAppbar(),
             Searchbar(),
             Chatbotmsg(),
-            // Prmière carte (Produit agricole )
+            // Première carte (Produit agricole)
             BuildPostCard(
-              profileImage: Icon( Icons.person, color: Colors.green),
+              profileImage: Icon(Icons.person, color: Colors.green),
               username: 'محمد',
               date: "الخميس 1000, 2024 مساءً",
               category: "قمح ",
@@ -49,13 +50,10 @@ class _HomePageState extends State<HomePage> {
                 'images/wheat3.png',
               ],
             ),
-
-           
-
             const SizedBox(height: 10),
             // Deuxième carte (Produit agricole)
             BuildPostCard(
-              profileImage: Icon( Icons.person, color: Colors.green,size: 10),
+              profileImage: Icon(Icons.person, color: Colors.green, size: 10),
               username: 'سعيد',
               date: "الخميس 1000, 2024 مساءً",
               category: "جرار",
@@ -64,10 +62,8 @@ class _HomePageState extends State<HomePage> {
                 'images/tractor1.png',
                 'images/tractor2.png',
                 'images/tractor3.png',
-                
-              ], 
+              ],
             ),
-            
           ],
         ),
       ),
@@ -75,7 +71,6 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
-      );
+    );
   }
-
 }

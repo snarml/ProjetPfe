@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -71,7 +72,9 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   buildAnimatedCard(context, 'معطيات', false),
-                  buildSubSettingsItem(context, 'تعديل معطيات الملف الشخصي'),
+                  buildSubSettingsItem(context, 'تعديل معطيات الملف الشخصي',(){
+                    Get.toNamed('/editProfile');
+                  }),
                   
                   buildAnimatedCard(context, 'إعدادات', false),
                   buildSubSettingsItem(context, 'إعدادات اللغة'),
@@ -120,7 +123,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // Fonction pour créer un élément de paramètre principal avec animation
   Widget buildSettingsItem(BuildContext context, String title, {bool hasTrailing = true}) {
     return Padding(
-      padding:  EdgeInsets.only(top: 15.h, bottom: 5.h),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Row(
         textDirection: TextDirection.rtl,
         children: [
@@ -140,22 +143,25 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Fonction pour créer un sous-élément de paramètre
-  Widget buildSubSettingsItem(BuildContext context, String title) {
+  Widget buildSubSettingsItem(BuildContext context, String title, [Function? onTap]) {
     return Padding(
       padding:  EdgeInsets.symmetric(vertical: 10.h),
-      child: Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          Icon(Icons.keyboard_arrow_left, color: Colors.grey),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Text(
-              title,
-              style:  TextStyle(fontSize: 14.sp, color: Colors.black),
-              textAlign: TextAlign.right,
+      child: InkWell(
+        onTap: onTap as void Function()?,
+        child: Row(
+          textDirection: TextDirection.ltr,
+          children: [
+            Icon(Icons.keyboard_arrow_left, color: Colors.grey),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                textAlign: TextAlign.right,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

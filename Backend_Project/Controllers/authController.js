@@ -11,9 +11,7 @@ dotenv.config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
-
-// Générer un OTP aléatoire
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID; // SID du service d'authentification Twilio
 
 // fonction de validation de numéro de telephone 
 const validatePhoneNumber = (num_tel) => {
@@ -21,6 +19,7 @@ const validatePhoneNumber = (num_tel) => {
   return phoneRegex.test(num_tel);
 };
 // 🔹 Enregistrer un utilisateur (version avec Sequelize + OTP)
+// 🔹 Fonction d'ajout d'un utilisateur
 export const addUser = async (req, res) => {
   const { full_name, num_tel, ville, pays, password } = req.body;
 
@@ -30,60 +29,72 @@ export const addUser = async (req, res) => {
       message: 'Tous les champs sont obligatoires',
     });
   }
+
   // Validation du numéro de téléphone
   if (!validatePhoneNumber(num_tel)) {
     return res.status(400).json({ message: 'Numéro de téléphone invalide' });
   }
+
   // Vérification de la longueur du mot de passe
   if (password.length < 8) {
     return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 8 caractères' });
   }
-  
 
   try {
+    // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ where: { num_tel } });
     if (existingUser) {
       return res.status(400).json({ message: 'Utilisateur déjà existant ❌' });
     }
 
+    // Hachage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOTP();
-    const otpExpires = new Date();
-    otpExpires.setMinutes(otpExpires.getMinutes() + 10);
 
+    // Création de l'utilisateur sans OTP
     const newUser = await User.create({
       full_name,
       num_tel,
       ville,
       pays,
       password: hashedPassword,
-      otp_code: otp,
-      otp_expires: otpExpires,
-      is_verified: false
+      is_verified: false, // Utilisateur non vérifié au début
     });
 
-    await client.messages.create({
-      body: `Votre code de vérification est : ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: num_tel
-    });
+    // Envoyer OTP via Twilio Verify
+    try{
 
-    res.status(201).json({
+    
+    await sendOtp(num_tel);
+    }catch (otpError) {
+      return res.status(500).json({ message: 'Erreru lors de l envoie de l otp'});
+    }
+
+    return res.status(201).json({
       status: 'SUCCESS',
-      message: 'Inscription réussie. Un OTP a été envoyé par SMS.',
+      message: 'Utilisateur créé avec succès. Un code de vérification a été envoyé par SMS.',
     });
-
   } catch (error) {
-    console.error('Erreur lors de l’inscription ❌:', error);
+    console.error('Erreur lors de l\'inscription ❌:', error);
     res.status(500).json({
       status: 'FAILED',
       message: 'Erreur serveur',
-      error: error.message
+      error: error.message,
     });
   }
-
 };
 
+// 🔹 Fonction d'envoi d'OTP via Twilio
+async function sendOtp(num_tel) {
+  try {
+    const verification = await client.verify.services(serviceSid)
+      .verifications
+      .create({ to: num_tel, channel: 'sms' });
+    return verification;
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'OTP ❌:', error);
+    throw new Error('Erreur lors de l\'envoi de l\'OTP');
+  }
+}
 
 // 🔹 Vérifier le code OTP
 export const verifyOTP = async (req, res) => {
@@ -92,47 +103,28 @@ export const verifyOTP = async (req, res) => {
   try {
     const user = await User.findOne({ where: { num_tel } });
     if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    const now = new Date();
 
-    //Si le code expire , on génère un nouveau code
-    if (user.otp_expires && now > user.otp_expires) {
-      const newOTP = generateOTP();
-      const newExpires = new Date();
-      newExpires.setMinutes(newExpires.getMinutes() + 10);
-
-      // Mise à jour de l'utilisateur avec le nouveau OTP
-      await User.update(
-        { otp_code: newOTP, otp_expires: newExpires },
-        { where: { num_tel } }
-      );
-      // Envoi du nouveau OTP par SMS
-      await client.messages.create({
-        body: `Votre nouveau code de vérification est : ${newOTP}`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: num_tel
-      });
-
-      return res.status(400).json({
-        message: 'Le code OTP a expiré. Un nouveau code a été envoyé.',
-      });
-    }
     // Vérification du code OTP
+    const verificationCheck = await client.verify.services(serviceSid)
+      .verificationChecks
+      .create({ to: num_tel, code: otp_code });
 
-    if (user.otp_code !== otp_code) {
-      return res.status(400).json({ error: 'Code OTP incorrect' });
+    if (verificationCheck.status === 'approved') {
+      // Mettre à jour le statut de l'utilisateur en "vérifié"
+      await User.update({ is_verified: true }, { where: { num_tel } });
+      return res.status(200).json({ message: 'Numéro vérifié avec succès ✅' });
+    } else {
+      return res.status(400).json({ error: 'Code OTP incorrect ❌' });
     }
-
-    //Validation du compte 
-
-    await User.update({ is_verified: true, otp_code: null, otp_expires: null }, { where: { num_tel } });
-
-    res.status(200).json({ message: 'Compte vérifié avec succès ✅' });
-  } catch (err) {
-    console.error('Erreur OTP ❌:', err);
-    res.status(500).json({ error: 'Erreur serveur' });
+  } catch (error) {
+    console.error('Erreur lors de la vérification du code OTP ❌:', error);
+    res.status(500).json({
+      status: 'FAILED',
+      message: 'Erreur serveur',
+      error: error.message,
+    });
   }
 };
-
 
 // 🔹 Connexion utilisateur
 export const login = async (req, res) => {
@@ -187,37 +179,37 @@ export const getUser = async (req, res) => {
 // fonction d'oublier le mot de passe
 export const forgetPassword = async (req, res) => {
   const { num_tel } = req.body;
+  if(!num_tel) {
+    return res.status(400).json({ message: 'Numéro de téléphone obligatoire ❌' });
+  }
   try {
+    //verifier si l'utilisateur existe 
     const user = await User.findOne({ where: { num_tel } });
     if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
-
-    const otp = generateOTP();
-    const otpExpires = new Date();
-    otpExpires.setMinutes(otpExpires.getMinutes() + 10);
-
-    await User.update({ otp_code: otp, otp_expires: otpExpires }, { where: { num_tel } });
-
-    await client.messages.create({
-      body: `Votre code de réinitialisation de mot de passe est : ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: num_tel
-    });
-
+    //envoyer un otp via TWilio verify pour la réinitalisation
+    await client.verify.services(serviceSid)
+      .verifications
+      .create({ to: num_tel, channel: 'sms' });
     res.status(200).json({
-      message: 'Un code a été envoyé pour réinitialiser le mot de passe ✅',
+      message: 'Un code de vérification a été envoyé par SMS pour réinitialiser le mot de passe ✅',
     });
-  } catch (error) {
-    console.error('Erreur lors de l’envoi du code ❌:', error);
+    } catch (err) {
+    console.error('Erreur lors de l\'envoi de l\'OTP ❌:', err);
     res.status(500).json({
       status: 'FAILED',
       message: 'Erreur serveur',
-      error: error.message
+      error: err.message
     });
   }
 };
 // fonction de réinitialisation du mot de passe
 export const resetPassword = async (req, res) => {
   const { num_tel, otp_code, new_password } = req.body;
+  // Vérification des champs requis
+  if (!num_tel || !otp_code || !new_password) {
+    return res.status(400).json({ message: 'Tous les champs sont obligatoires ❌' });
+  }
+
 
   try {
     const user = await User.findOne({ where: { num_tel } });
@@ -226,22 +218,31 @@ export const resetPassword = async (req, res) => {
     if (user.otp_code !== otp_code) {
       return res.status(400).json({ message: 'Code OTP incorrect ❌' });
     }
-
-    const hashedPassword = await bcrypt.hash(new_password, 10);
-    await User.update({ password: hashedPassword, otp_code: null, otp_expires: null }, { where: { num_tel } });
-
-    res.status(200).json({
-      message: 'Mot de passe réinitialisé avec succès ✅',
-    });
-  } catch (error) {
-    console.error('Erreur lors de la réinitialisation du mot de passe ❌:', error);
-    res.status(500).json({
-      status: 'FAILED',
-      message: 'Erreur serveur',
-      error: error.message
-    });
-  }
-};
+    //vérifier si le code otp est correct via twilio 
+    const verificationCheck = await client.verify.services(serviceSid)
+      .verificationChecks
+      .create({ to: num_tel, code: otp_code });
+    if (verificationCheck.status === 'approved') {
+      // Mise à jour du mot de passe
+      const hashedPassword = await bcrypt.hash(new_password, 10);
+      user.password = hashedPassword;
+      await user.save();
+      res.status(200).json({
+        message: 'Mot de passe réinitialisé avec succès ✅',
+      });
+      } else {
+      return res.status(400).json({ message: 'Code OTP incorrect ❌' });
+      }
+      } catch (err) {
+        console.error('Erreur lors de la réinitialisation du mot de passe ❌:', err);
+        res.status(500).json({
+          status: 'FAILED',
+          message: 'Erreur serveur',
+          error: err.message
+        });
+        }
+        };
+  
 // fonction de suppression de compte  
 export const deleteAccount = async (req, res) => {
   const { id } = req.params;

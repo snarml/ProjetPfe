@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 app.use('/api',userRoutes);
 
 // Démarrage du serveur
-const PORT = 3000;
+const PORT = 4000;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });

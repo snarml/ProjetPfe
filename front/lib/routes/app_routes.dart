@@ -1,8 +1,9 @@
+import 'package:bitakati_app/screens/EditProfile.dart';
 import 'package:bitakati_app/screens/Home_page.dart';
+import 'package:bitakati_app/screens/NavBar.dart';
 import 'package:bitakati_app/screens/chatbot_conversation.dart';
 import 'package:bitakati_app/screens/chatbot_welcome.dart';
 import 'package:bitakati_app/screens/farminPlusPage.dart';
-import 'package:bitakati_app/screens/menuPage.dart';
 import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/panier.dart';
@@ -20,7 +21,7 @@ import 'package:get/get.dart';
 class AppRoutes {
   static final routes = [
     GetPage(name: '/welcome', page: () => WelcomePage()),
-    GetPage(name: '/login', page: () => SignIn()),
+    GetPage(name: '/login', page: () => LoginPage()),
     GetPage(name: '/sign_in', page: () => SignInScreen()),
     GetPage(name: '/sign_up', page: () => SignUpScreen()),
     GetPage(name: '/home_page', page: () => HomePage()),
@@ -34,8 +35,9 @@ class AppRoutes {
     GetPage(name: '/panier', page: () => Panier()),
     GetPage(name: '/notification', page: () => NotificationPage()),
     GetPage(name: '/messagePage', page: () => Messagepage()),
-    GetPage(name: '/menu', page: () => Menupage()),
+    GetPage(name: '/menu', page: () => NavBar()),
     GetPage(name: '/role', page: () => Role()),
+    GetPage(name: '/editProfile', page: () => Editprofile()),
 
   
 
