@@ -1,16 +1,19 @@
-import 'package:bitakati_app/screens/signIn/login_page.dart';
+import 'package:bitakati_app/screens/signIn/signin_screen.dart';
 import 'package:bitakati_app/screens/signIn/verification_code.dart';
+import 'package:bitakati_app/widgets/custom_Input_filed.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:bitakati_app/services/authServices.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignupScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignupScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _stateController = TextEditingController();
@@ -18,9 +21,7 @@ class _SignupScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  bool _isObscurePassword = true; // Masque du champ mot de passe
-  bool _isObscureConfirm = true; // Masque du champ confirmation
+  final ApiService _authServices = ApiService();
 
   @override
   void dispose() {
@@ -36,193 +37,219 @@ class _SignupScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            const Center(
-              child: Text(
-                'إنشاء حساب جديد',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'الاسم الكامل',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
-              ),
-              textDirection: TextDirection.rtl,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال الاسم الكامل';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'رقم الهاتف',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.phone),
-              ),
-              textDirection: TextDirection.rtl,
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال رقم الهاتف';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _stateController,
-              decoration: const InputDecoration(
-                labelText: 'الولاية',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.public),
-              ),
-              textDirection: TextDirection.rtl,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال الولاية';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _cityController,
-              decoration: const InputDecoration(
-                labelText: 'المدينة',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.location_city),
-              ),
-              textDirection: TextDirection.rtl,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال المدينة';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: _isObscurePassword,
-              decoration: InputDecoration(
-                labelText: 'كلمة المرور',
-                border: const OutlineInputBorder(),
-                prefixIcon: IconButton(
-                  icon: Icon(
-                    _isObscurePassword ? Icons.visibility_off : Icons.visibility,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscurePassword = !_isObscurePassword;
-                    });
-                  },
+      padding: EdgeInsets.all(10.h),
+      child: SingleChildScrollView(
+        // Wrap the Form widget inside SingleChildScrollView
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const Center(
+                child: Text(
+                  'إنشاء حساب جديد',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
               ),
-              textDirection: TextDirection.rtl,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال كلمة المرور';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _confirmPasswordController,
-              obscureText: _isObscureConfirm,
-              decoration: InputDecoration(
-                labelText: 'تأكيد كلمة المرور',
-                border: const OutlineInputBorder(),
-                prefixIcon: IconButton(
-                  icon: Icon(
-                    _isObscureConfirm ? Icons.visibility_off : Icons.visibility,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscureConfirm = !_isObscureConfirm;
-                    });
-                  },
-                ),
+              SizedBox(height: 16.h),
+              CustomInputField(
+                icon: Icons.person,
+                hint: 'الاسم الكامل',
+                controller: _nameController,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال الاسم الكامل';
+                  }
+                  return null;
+                },
               ),
-              textDirection: TextDirection.rtl,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء تأكيد كلمة المرور';
-                }
-                if (value != _passwordController.text) {
-                  return 'كلمة المرور غير متطابقة';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        String phoneNumber = _phoneController.text;
-                        Get.offAll(() => VerificationCode(phone: phoneNumber));
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Text(
-                          'التالي',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, color: Colors.white),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              SizedBox(height: 10.h),
+              CustomInputField(
+                icon: Icons.phone,
+                hint: 'رقم الهاتف',
+                controller: _phoneController,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال رقم الهاتف';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10.h),
+              CustomInputField(
+                icon: Icons.map,
+                hint: 'الولاية',
+                controller: _stateController,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال الولاية';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10.h),
+              CustomInputField(
+                icon: Icons.location_city,
+                hint: 'المدينة',
+                controller: _cityController,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال المدينة';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10.h),
+              CustomInputField(
+                icon: Icons.lock,
+                hint: 'كلمة المرور',
+                controller: _passwordController,
+                isPassword: true,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء إدخال كلمة المرور';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10.h),
+              CustomInputField(
+                icon: Icons.lock_clock_outlined,
+                hint: 'تأكيد كلمة المرور',
+                controller: _confirmPasswordController,
+                isPassword: true,
+                borderColor: Colors.green,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'الرجاء تأكيد كلمة المرور';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'كلمة المرور غير متطابقة';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('لديك حساب بالفعل؟'),
-                  TextButton(
-                    onPressed: () {
-                      Get.offAll(() => SignIn());
-                    },
-                    child: const Text(
-                      'تسجيل الدخول',
-                      style: TextStyle(color: Colors.green),
+                  Expanded(
+                    child: Container(
+                      height: 56, // Hauteur fixe pour un bouton plus élégant
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withOpacity(0.3),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          print("le bouton a été pressé ");
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              // Call the signUp function
+
+                              final response = await _authServices.signUp(
+                                context,
+                                _nameController.text.trim(),
+                                _phoneController.text.trim(),
+                                _stateController.text.trim(),
+                                _cityController.text.trim(),
+                                _passwordController.text.trim(),
+                              );
+                              print("reponse de l api : $response");
+                              // If successful, navigate to verification
+                              if (response != null) {
+                                String phoneNumber = _phoneController.text;
+                                Get.offAll(
+                                    () => VerificationCode(phone: phoneNumber));
+                              } else {
+                                print("aucune réponse valide de l'api");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('خطأ في التسجيل'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              
+                              ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString().replaceAll('Exception: ', '')),
+                                backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 15.w),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Text(
+                              'التالي',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 16.h),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'لديك حساب بالفعل؟',
+                      style: TextStyle(
+                          fontSize: 16), // Adjusted size for better readability
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Get.offAll(() => SignInScreen());
+                      },
+                      child: const Text(
+                        'تسجيل الدخول',
+                        style: TextStyle(color: Colors.green),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

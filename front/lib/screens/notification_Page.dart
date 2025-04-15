@@ -6,6 +6,8 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+
     // Liste de notifications (tu peux les récupérer du backend après)
     final List<String> notifications = [
       'تنبيه : تقلبات جوية اليوم في قابس',

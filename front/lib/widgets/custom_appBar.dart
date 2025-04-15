@@ -4,14 +4,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CustomAppbar extends StatelessWidget {
+class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppbar({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
+      iconTheme: const IconThemeData(color: Colors.green), // Change the color of the icons
       title: Row(
         textDirection: TextDirection.rtl,
         children: <Widget>[
@@ -27,7 +31,7 @@ class CustomAppbar extends StatelessWidget {
               icon: const Icon(Icons.person, color: Colors.white, size: 17), // Profile icon
             ),
           ),
-          SizedBox(width: 14),//space between the profile icon and the text
+          SizedBox(width: 10),//space between the profile icon and the text
           const Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -36,31 +40,33 @@ class CustomAppbar extends StatelessWidget {
             ],
           ),
           const Spacer(),// this will push the icons to the right 
-            IconButton(
-            icon:  const Icon(Icons.shopping_cart, color: Colors.green),
-            onPressed: () {
-              Get.toNamed ('/panier'); // Navigate to the panier page
-            },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                icon:  const Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Get.toNamed ('/panier'); // Navigate to the panier page
+                },
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.green),
+          SizedBox(width: 0),//space between the icon
+                IconButton(
+            icon: const Icon(Icons.notifications),
             onPressed: () {
               Get.toNamed ('/notification'); 
             },
           ),
            IconButton(
-            icon: const Icon(Icons.message_sharp, color: Colors.green),
+            icon: const Icon(Icons.message_sharp),
             onPressed: () {
               
               Get.toNamed ('/messagePage'); // Navigate to the message page
             },
           ),
-           IconButton(
-            icon: const Icon(Icons.menu, color: Colors.green),
-            onPressed: () {
-              Get.toNamed ('/menu'); // Navigate to the menu page
-            },
-          ),
+              ],
+            ),
+          
+          
           ],
     ),
     );

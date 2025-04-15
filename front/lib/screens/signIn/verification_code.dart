@@ -150,8 +150,13 @@ class _VerificationCodeState extends State<VerificationCode> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Get.back()),
-                      const Text("تأكيد رقم الهاتف", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      
+                      const Text(
+                        textAlign: TextAlign.center, 
+                        "تأكيد رقم الهاتف", 
+                      
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      
                       const SizedBox(width: 40),
                     ],
                   ),

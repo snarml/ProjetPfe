@@ -3,14 +3,14 @@ import 'package:bitakati_app/screens/signIn/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<SignIn> createState() => _SignInState();
+  State<LoginPage> createState() => _SignInState();
 }
 
-class _SignInState extends State<SignIn> {
+class _SignInState extends State<LoginPage> {
   bool isLoginMode = true;
 
   void toggleMode() {
