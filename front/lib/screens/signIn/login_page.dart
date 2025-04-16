@@ -22,7 +22,8 @@ class _SignInState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: SafeArea(
+    child:   Stack(
         alignment: Alignment.topCenter,
         children: [
           // Image en haut
@@ -130,6 +131,7 @@ class _SignInState extends State<LoginPage> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

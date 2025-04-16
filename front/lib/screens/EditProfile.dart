@@ -45,7 +45,7 @@ class _EditprofileState extends State<Editprofile> {
                   const SizedBox(height: 20),
                   const CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/avatar.png'),
+                    backgroundImage: AssetImage('images/avatar.png'),
                   ),
                   const SizedBox(height: 10),
                   const Text(

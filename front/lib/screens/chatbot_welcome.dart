@@ -84,27 +84,24 @@ class ChatbotWelcome extends StatelessWidget {
             child: SizedBox(
               width: 150,
               height: 50,
-              child: Container(
-                
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigation vers la page de chat
-                    Get.toNamed('/chatbot_conversation');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6979F8), // Couleur violette du bouton
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                
-                    ),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigation vers la page de chat
+                  Get.toNamed('/chatbot_conversation');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6979F8), // Couleur violette du bouton
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+              
                   ),
-                  child: const Text(
-                    "التالي",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                ),
+                child: const Text(
+                  "التالي",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),

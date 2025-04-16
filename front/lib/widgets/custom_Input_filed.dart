@@ -10,7 +10,7 @@ class CustomInputField extends StatefulWidget {
   final bool isPassword; // Indique si le champ est un mot de passe
 
   const CustomInputField({
-    Key? key,
+    super.key,
     required this.icon,
     required this.hint,
     required this.controller,
@@ -18,7 +18,7 @@ class CustomInputField extends StatefulWidget {
     this.obscure = false,
     this.validator,
     this.borderColor = Colors.transparent,
-  }) : super(key: key);
+  });
   @override
   State<CustomInputField> createState() => _CustomInputFieldState();
 }
@@ -62,7 +62,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
           hintText: widget.hint,
           hintStyle: const TextStyle(color: Color.fromARGB(255, 126, 125, 125)),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color.fromARGB(255, 255, 255, 255),
           suffixIcon: Icon(widget.icon, color: Colors.green),
           prefixIcon: widget.isPassword
               ? IconButton(

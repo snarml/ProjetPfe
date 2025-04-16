@@ -1,4 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Farmingpluspage extends StatefulWidget {
   const Farmingpluspage({super.key});
@@ -10,6 +11,6 @@ class Farmingpluspage extends StatefulWidget {
 class _FarmingpluspageState extends State<Farmingpluspage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold();
   }
 }

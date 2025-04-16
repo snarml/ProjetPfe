@@ -1,6 +1,10 @@
 
 // ignore_for_file: file_names
 
+import 'package:bitakati_app/screens/CartPage.dart';
+import 'package:bitakati_app/screens/messagePage.dart';
+import 'package:bitakati_app/screens/notification_Page.dart';
+import 'package:bitakati_app/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,9 +28,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
             radius: 16,// Profile icon size
             child: IconButton(
               onPressed: () {
-                // Handle profile icon press
-                // You can navigate to the profile page or perform any action here
-                Get.toNamed ('/profile'); // Navigate to the profile page
+                Get.to(()=> ProfilePage()); // Navigate to the profile page
               }, 
               icon: const Icon(Icons.person, color: Colors.white, size: 17), // Profile icon
             ),
@@ -46,21 +48,21 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 IconButton(
                 icon:  const Icon(Icons.shopping_cart),
                 onPressed: () {
-                  Get.toNamed ('/panier'); // Navigate to the panier page
+                  Get.to(()=> CartPage()); // Navigate to the panier page
                 },
           ),
           SizedBox(width: 0),//space between the icon
                 IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              Get.toNamed ('/notification'); 
+              Get.to(()=> NotificationPage()); 
             },
           ),
            IconButton(
             icon: const Icon(Icons.message_sharp),
             onPressed: () {
               
-              Get.toNamed ('/messagePage'); // Navigate to the message page
+              Get.to(()=> Messagepage()); // Navigate to the message page
             },
           ),
               ],

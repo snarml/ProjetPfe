@@ -1,13 +1,11 @@
 // ignore_for_file: file_names
 
-import 'package:bitakati_app/screens/NavBar.dart';
+import 'package:bitakati_app/screens/Dashboard.dart';
 import 'package:bitakati_app/widgets/build_post_card.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
 import 'package:bitakati_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:bitakati_app/widgets/navigation_bar.dart';
-import 'package:bitakati_app/widgets/notifications_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,14 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,10 +57,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: Navigationbar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      
     );
   }
 }

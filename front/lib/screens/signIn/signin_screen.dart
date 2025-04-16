@@ -1,8 +1,11 @@
-import 'package:bitakati_app/screens/Home_page.dart';
+import 'package:bitakati_app/screens/signIn/forgot_password_screen.dart';
+import 'package:bitakati_app/services/authServices.dart';
 import 'package:bitakati_app/widgets/custom_Input_filed.dart';
+import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -16,6 +19,55 @@ class _SigninScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _rememberPassword = false;
+  bool _isLoading = false;
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+
+      try {
+        final apiService = ApiService();
+        await apiService.signIn(
+          _phoneController.text,
+          _passwordController.text,
+        );
+
+        //Sauvegarder les infos avec SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        if (_rememberPassword) {
+          await prefs.setString('savedPhone', _phoneController.text);
+        } else {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('savedPhone');
+        }
+        //Aller dans la page d'accueil
+        Get.offAll(() => Navigationbar());
+        Get.snackbar('Succès', 'Connexion réussie',
+            backgroundColor: Colors.green);
+      } catch (e) {
+        Get.snackbar('Erreur', e.toString(), backgroundColor: Colors.red);
+      } finally {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedPhone = prefs.getString('savedPhone');
+
+    if (savedPhone != null) {
+      setState(() {
+        _phoneController.text = savedPhone;
+        _rememberPassword = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -37,7 +89,6 @@ class _SigninScreenState extends State<SignInScreen> {
               child: Text(
                 'أهلا بك',
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 20.h), // Augmenté pour plus d'espace
@@ -53,7 +104,7 @@ class _SigninScreenState extends State<SignInScreen> {
                 return null;
               },
             ),
-            SizedBox(height: 10.h), 
+            SizedBox(height: 10.h),
             CustomInputField(
               icon: Icons.lock,
               hint: 'كلمة المرور',
@@ -70,7 +121,8 @@ class _SigninScreenState extends State<SignInScreen> {
             SizedBox(height: 16.h), // Consistency: using .h
             // Réorganisé pour l'interface RTL (droite à gauche)
             Row(
-              mainAxisAlignment: MainAxisAlignment.end, // Align to the right for RTL
+              mainAxisAlignment:
+                  MainAxisAlignment.end, // Align to the right for RTL
               children: [
                 const Text('تذكر كلمة المرور'), // Text first for RTL
                 Checkbox(
@@ -84,12 +136,12 @@ class _SigninScreenState extends State<SignInScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 24.h), 
+            SizedBox(height: 24.h),
             Container(
               width: double.infinity,
               height: 50.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15), 
+                borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.green.withOpacity(0.3),
@@ -100,25 +152,29 @@ class _SigninScreenState extends State<SignInScreen> {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Logique de connexion
-                    Get.offAll(() => HomePage());
-                  }
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        _handleLogin();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  elevation: 0, 
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15), 
-                    
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  
                 ),
-                child: const Text(
-                  'تسجيل دخول',
-                  style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold,letterSpacing: 0.5),
-                ),
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        'تسجيل دخول',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
               ),
             ),
             SizedBox(height: 16.h), // Consistency: using .h
@@ -126,7 +182,7 @@ class _SigninScreenState extends State<SignInScreen> {
               child: TextButton(
                 onPressed: () {
                   // Logique pour la récupération de mot de passe
-                  // Get.to(() => ForgotPasswordPage());
+                  Get.to(() => ForgotPasswordScreen());
                 },
                 child: const Text(
                   'نسيت كلمة المرور؟',

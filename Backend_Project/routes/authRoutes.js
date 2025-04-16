@@ -1,5 +1,5 @@
 import express from 'express';  // Utilisation de 'import' pour Express
-import { addUser, getUser, verifyOTP, login} from '../Controllers/authController.js';   // Import de la fonction pour récupérer les utilisateurs
+import { addUser, getUser, verifyOTP, login, forgetPassword} from '../Controllers/authController.js';   // Import de la fonction pour récupérer les utilisateurs
 
 const router = express.Router();
 
@@ -13,7 +13,10 @@ router.post('/verify', verifyOTP);  // Route pour vérifier l'OTP
 router.post('/login', login);  // Route pour la connexion
 
 // Récupération de l'utilisateur par son ID
-router.get('/user/:id', getUser);  // Correction de la route pour obtenir les utilisateurs
+router.get('/user/:id', getUser);  
+
+// mot de passe oublié 
+router.post('/forgot', forgetPassword);
 
 //vérification de token jwt
 router.use((req, res, next) => {

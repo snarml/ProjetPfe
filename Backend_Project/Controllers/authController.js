@@ -19,65 +19,57 @@ const validatePhoneNumber = (num_tel) => {
   return phoneRegex.test(num_tel);
 };
 // 🔹 Enregistrer un utilisateur (version avec Sequelize + OTP)
-// 🔹 Fonction d'ajout d'un utilisateur
+// 🔹 Fonction d'ajout d'un utilisateur (envoie d'otp + JWT)
 export const addUser = async (req, res) => {
   const { full_name, num_tel, ville, pays, password } = req.body;
 
   if (!full_name || !num_tel || !ville || !pays || !password) {
     return res.status(400).json({
-      status: 'FAILED',
-      message: 'Tous les champs sont obligatoires',
+      status: 'فشل',
+      message: 'جميع الحقول مطلوبة',
     });
   }
 
   // Validation du numéro de téléphone
   if (!validatePhoneNumber(num_tel)) {
-    return res.status(400).json({ message: 'Numéro de téléphone invalide' });
+    return res.status(400).json({ message: 'رقم الهاتف غير صالح' });
   }
 
   // Vérification de la longueur du mot de passe
   if (password.length < 8) {
-    return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 8 caractères' });
+    return res.status(400).json({ message: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل' });
   }
 
   try {
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ where: { num_tel } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Utilisateur déjà existant ❌' });
+      return res.status(400).json({ message: 'المستخدم موجود بالفعل ' });
     }
+    // Envoyer OTP
+    try{ 
+      await sendOtp(num_tel);
+      // Générer token temporaire avec les infos utilisateur
+    const token = jwt.sign(
+      { full_name, num_tel, ville, pays, password },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' } // expire dans 10 minutes
+    );
 
-    // Hachage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Création de l'utilisateur sans OTP
-    const newUser = await User.create({
-      full_name,
-      num_tel,
-      ville,
-      pays,
-      password: hashedPassword,
-      is_verified: false, // Utilisateur non vérifié au début
+    return res.status(200).json({
+      message: 'تم إرسال رمز التحقق عبر الرسائل القصيرة ',
+      token, // à utiliser dans la vérification OTP
     });
 
-    // Envoyer OTP via Twilio Verify
-    try{
-
-    
-    await sendOtp(num_tel);
-    }catch (otpError) {
-      return res.status(500).json({ message: 'Erreru lors de l envoie de l otp'});
-    }
-
-    return res.status(201).json({
-      status: 'SUCCESS',
-      message: 'Utilisateur créé avec succès. Un code de vérification a été envoyé par SMS.',
-    });
+  } catch(otpError){
+    console.error('Erreur Twilio  ', otpError);
+    return res.status(500).json({message: 'حدث خطأ أثناء إرسال رمز التحقق '});
+  }
   } catch (error) {
-    console.error('Erreur lors de l\'inscription ❌:', error);
+    console.error('خطأ أثناء التسجيل :', error);
     res.status(500).json({
-      status: 'FAILED',
-      message: 'Erreur serveur',
+      status: 'فشل',
+      message: 'خطأ في الخادم',
       error: error.message,
     });
   }
@@ -91,66 +83,136 @@ async function sendOtp(num_tel) {
       .create({ to: num_tel, channel: 'sms' });
     return verification;
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'OTP ❌:', error);
-    throw new Error('Erreur lors de l\'envoi de l\'OTP');
+    console.error('خطأ أثناء إرسال OTP :', error);
+    throw new Error('فشل في إرسال رمز التحقق');
   }
 }
-
-// 🔹 Vérifier le code OTP
+// 🔹 Vérifier le code OTP et enregistrer l'utilisateur
 export const verifyOTP = async (req, res) => {
-  const { num_tel, otp_code } = req.body;
+  const { otp_code } = req.body;
+  const token = req.headers['x-auth-token'];
+
+  // Validation des entrées
+  if (!token) {
+    return res.status(401).json({ 
+      success: false,
+      message: 'Token d\'authentification manquant' 
+    });
+  }
+
+  if (!otp_code || otp_code.length !== 6) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Le code OTP doit contenir 6 chiffres' 
+    });
+  }
 
   try {
-    const user = await User.findOne({ where: { num_tel } });
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    // Vérification du token JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { num_tel, password } = decoded;
 
-    // Vérification du code OTP
-    const verificationCheck = await client.verify.services(serviceSid)
+    // Vérification OTP avec Twilio
+    const verificationCheck = await client.verify.v2.services(process.env.TWILIO_VERIFY_SERVICE_SID)
       .verificationChecks
       .create({ to: num_tel, code: otp_code });
 
-    if (verificationCheck.status === 'approved') {
-      // Mettre à jour le statut de l'utilisateur en "vérifié"
-      await User.update({ is_verified: true }, { where: { num_tel } });
-      return res.status(200).json({ message: 'Numéro vérifié avec succès ✅' });
-    } else {
-      return res.status(400).json({ error: 'Code OTP incorrect ❌' });
+    if (verificationCheck.status !== 'approved') {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Code OTP incorrect ou expiré' 
+      });
     }
+
+    // Vérifier si l'utilisateur existe déjà
+    const existingUser = await User.findOne({ where: { num_tel } });
+    if (existingUser) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Ce numéro est déjà enregistré' 
+      });
+    }
+
+    // Création de l'utilisateur
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = await User.create({
+      ...decoded,
+      password: hashedPassword,
+      is_verified: true,
+    });
+
+    // Générer un nouveau token pour la session
+    const authToken = jwt.sign(
+      { id: newUser.id, num_tel: newUser.num_tel },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Compte vérifié et créé avec succès',
+      token: authToken,
+      user: {
+        id: newUser.id,
+        num_tel: newUser.num_tel,
+        is_verified: newUser.is_verified
+      }
+    });
+
   } catch (error) {
-    console.error('Erreur lors de la vérification du code OTP ❌:', error);
-    res.status(500).json({
-      status: 'FAILED',
+    console.error('Erreur OTP:', error);
+
+    // Gestion spécifique des erreurs JWT
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Token invalide' 
+      });
+    }
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Token expiré' 
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
       message: 'Erreur serveur',
-      error: error.message,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 
+
+
 // 🔹 Connexion utilisateur
 export const login = async (req, res) => {
   const { num_tel, password } = req.body;
+  
 
   try {
     const user = await User.findOne({ where: { num_tel } });
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    if (!user) return res.status(404).json({ error: 'لم يتم العثور على المستخدم' });
 
     if (!user.is_verified) {
-      return res.status(401).json({ error: 'Compte non vérifié. Veuillez vérifier votre numéro.' });
+      return res.status(401).json({ error: 'لم يتم التحقق من الحساب. يرجى التحقق من رقمك' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: 'Mot de passe incorrect' });
+    if (!isMatch) return res.status(401).json({ error: 'كلمة مرور غير صحيحة' });
 
     const payload = { id: user.id, num_tel: user.num_tel };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.status(200).json({
-      message: 'Connexion réussie ✅',
+      message: 'تم الاتصال بنجاح',
       token
     });
   } catch (err) {
-    console.error('Erreur de connexion ❌:', err);
-    res.status(500).json({ error: 'Erreur serveur' });
+    console.error(' :خطأ في الاتصال ', err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
   }
 };
 
@@ -180,7 +242,9 @@ export const getUser = async (req, res) => {
 export const forgetPassword = async (req, res) => {
   const { num_tel } = req.body;
   if(!num_tel) {
-    return res.status(400).json({ message: 'Numéro de téléphone obligatoire ❌' });
+    return res.status(400).json({ 
+      success: false,
+      message: 'Numéro de téléphone obligatoire ❌' });
   }
   try {
     //verifier si l'utilisateur existe 

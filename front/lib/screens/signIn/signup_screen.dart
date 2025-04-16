@@ -154,7 +154,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       child: ElevatedButton(
                         onPressed: () async {
-                          print("le bouton a été pressé ");
+                          print('Bouton cliqué');
+                          
                           if (_formKey.currentState!.validate()) {
                             try {
                               // Call the signUp function
@@ -167,14 +168,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 _cityController.text.trim(),
                                 _passwordController.text.trim(),
                               );
-                              print("reponse de l api : $response");
+
                               // If successful, navigate to verification
-                              if (response != null) {
-                                String phoneNumber = _phoneController.text;
-                                Get.offAll(
-                                    () => VerificationCode(phone: phoneNumber));
+                              if (response['token'] != null) {
+                                String phoneNumber =
+                                    _phoneController.text.trim();
+                                String token = response['token'];
+                                Get.to(() => VerificationCode(
+                                    phone: phoneNumber, token: token));
                               } else {
-                                print("aucune réponse valide de l'api");
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('خطأ في التسجيل'),
@@ -183,11 +185,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 );
                               }
                             } catch (e) {
-                              
                               ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(e.toString().replaceAll('Exception: ', '')),
-                                backgroundColor: Colors.red,
+                                SnackBar(
+                                  content: Text(e
+                                      .toString()
+                                      .replaceAll('Exception: ', '')),
+                                  backgroundColor: Colors.red,
                                 ),
                               );
                             }
