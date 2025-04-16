@@ -1,6 +1,6 @@
 import 'package:bitakati_app/controllers/NavigationController.dart';
 import 'package:bitakati_app/screens/Home_page.dart';
-import 'package:bitakati_app/screens/farminPlusPage.dart';
+import 'package:bitakati_app/screens/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/profile.dart';
 import 'package:bitakati_app/screens/services.dart';
 import 'package:bitakati_app/screens/storePage.dart';
@@ -27,7 +27,7 @@ class _NavigationbarState extends State<Navigationbar> {
       HomePage(),
       Services(),
       StorePage(),
-      Farmingpluspage(),
+      FarmingPlusPage(),
       ProfilePage(),
     ];
 

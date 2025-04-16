@@ -3,7 +3,6 @@ import 'package:bitakati_app/screens/Home_page.dart';
 import 'package:bitakati_app/screens/Dashboard.dart';
 import 'package:bitakati_app/screens/chatbot_conversation.dart';
 import 'package:bitakati_app/screens/chatbot_welcome.dart';
-import 'package:bitakati_app/screens/farminPlusPage.dart';
 import 'package:bitakati_app/screens/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
@@ -44,7 +43,7 @@ class AppRoutes {
     GetPage(name: '/chatbot_conversation', page: () => ChatbotConversation()),
     GetPage(name: profile, page: () => ProfilePage()),
     GetPage(name: store, page: () => StorePage()),
-    GetPage(name: farmingPlus, page: () => Farmingpluspage()),
+    GetPage(name: farmingPlus, page: () => FarmingPlusPage()),
     GetPage(name: services, page: () => Services()),
     GetPage(name: '/panier', page: () => Panier()),
     GetPage(name: '/notification', page: () => NotificationPage()),

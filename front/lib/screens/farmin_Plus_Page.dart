@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class farmingPlusPage extends StatelessWidget {
-  const farmingPlusPage({super.key});
+class FarmingPlusPage extends StatelessWidget {
+  const FarmingPlusPage({super.key});
 
   @override
   Widget build(BuildContext context) {

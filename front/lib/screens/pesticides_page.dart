@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
-import 'package:bitakati_app/widgets/navigation_bar.dart';
 
 class PesticidesPage extends StatefulWidget {
   const PesticidesPage({super.key});
@@ -10,14 +9,8 @@ class PesticidesPage extends StatefulWidget {
 }
 
 class _PesticidesPageState extends State<PesticidesPage> {
-  int _selectedIndex = 2;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,10 +60,7 @@ class _PesticidesPageState extends State<PesticidesPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Navigationbar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      
     );
   }
 
