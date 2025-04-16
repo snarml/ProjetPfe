@@ -4,6 +4,7 @@ import 'package:bitakati_app/screens/Dashboard.dart';
 import 'package:bitakati_app/screens/chatbot_conversation.dart';
 import 'package:bitakati_app/screens/chatbot_welcome.dart';
 import 'package:bitakati_app/screens/farminPlusPage.dart';
+import 'package:bitakati_app/screens/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/panier.dart';
@@ -19,13 +20,18 @@ import 'package:bitakati_app/screens/storePage.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:get/get.dart';
+import 'package:bitakati_app/screens/diseases_page.dart';
+import 'package:bitakati_app/screens/pesticides_page.dart';
+import 'package:bitakati_app/screens/solutions_page.dart';
+import 'package:bitakati_app/screens/fertilizer_page.dart';
 
 class AppRoutes {
   static const String homePage = '/home_page';
   static const String services = '/services';
   static const String store = '/store';
   static const String farmingPlus = '/farmingPlus';
-  static const String  profile = '/profile';
+  static const String profile = '/profile';
+
   static final routes = [
     GetPage(name: '/', page: () => Navigationbar()),
     GetPage(name: '/welcome', page: () => WelcomePage()),
@@ -47,10 +53,11 @@ class AppRoutes {
     GetPage(name: '/role', page: () => Role()),
     GetPage(name: '/editProfile', page: () => Editprofile()),
     GetPage(
-        name: '/verify',
-        page: () {
-          final args = Get.arguments;
-          return VerificationCode(phone: args['phone'], token: args['token'],);
-        }),
+      name: '/verify',
+      page: () {
+        final args = Get.arguments;
+        return VerificationCode(phone: args['phone'], token: args['token']);
+      },
+    ),
   ];
 }

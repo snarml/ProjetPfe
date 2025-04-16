@@ -1,4 +1,4 @@
-const diseaseService = require('../services/diseaseService');
+const diseaseService = require('Backend_Project\services\diseasesService.js');
 
 const getDiseases = (req, res) => {
     const diseases = diseaseService.getAllDiseases();

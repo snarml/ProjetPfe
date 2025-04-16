@@ -17,3 +17,6 @@ module.exports = {
     getAllDiseases,
     getDiseaseById
 };
+
+
+

@@ -5,6 +5,7 @@ import 'package:bitakati_app/widgets/build_post_card.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
 import 'package:bitakati_app/widgets/search_bar.dart';
+import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +22,8 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: CustomAppbar(),
       drawer: Drawer(
-        child: NavBar()), 
+        child: NavBar(),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -57,7 +59,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      
     );
   }
 }
