@@ -36,7 +36,7 @@ class AppRoutes {
     GetPage(name: '/chatbot_conversation', page: ()=> ChatbotConversation()),
     GetPage(name: '/profile', page: () => ProfilePage()),
     GetPage(name: '/store', page: () => Storepage()),
-    GetPage(name: '/farmingPlus', page: () => farmingPlusPage()),
+    GetPage(name: '/farmingPlus', page: () => FarmingPlusPage()),
     GetPage(name: '/services', page: () => Services()),
     GetPage(name: '/panier', page: () => Panier()),
     GetPage(name: '/notification', page: () => NotificationPage()),
