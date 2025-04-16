@@ -65,7 +65,7 @@ class _NavigationbarState extends State<Navigationbar> {
           animationDuration: const Duration(milliseconds: 300),
           index: navController.currentIndex.value,
           onTap: (index) {
-            navController.changePage(index); // Met à jour l'index avec GetX
+            navController.changePage(index); 
           },
         ),
       ),

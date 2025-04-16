@@ -19,10 +19,10 @@ import 'package:bitakati_app/screens/storePage.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:get/get.dart';
-import 'package:bitakati_app/screens/diseases_page.dart';
 import 'package:bitakati_app/screens/pesticides_page.dart';
 import 'package:bitakati_app/screens/solutions_page.dart';
 import 'package:bitakati_app/screens/fertilizer_page.dart';
+
 
 class AppRoutes {
   static const String homePage = '/home_page';
@@ -51,6 +51,7 @@ class AppRoutes {
     GetPage(name: '/menu', page: () => NavBar()),
     GetPage(name: '/role', page: () => Role()),
     GetPage(name: '/editProfile', page: () => Editprofile()),
+    //GetPage(name: '/deseases', page: () => DeseasesPage()),
     GetPage(
       name: '/verify',
       page: () {

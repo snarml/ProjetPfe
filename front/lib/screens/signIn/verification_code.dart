@@ -29,60 +29,50 @@ class _VerificationCodeState extends State<VerificationCode> {
     return _codeControllers.map((controller) => controller.text).join();
   }
 
-  
   Future<void> _verifyCode() async {
-  final enteredCode = _getCode();
+    final enteredCode = _getCode();
 
-  if (enteredCode.length != 6) {
-    if (mounted) {
-      setState(() => _errorMessage = "الرجاء إدخال الرمز كاملاً المكون من 6 أرقام");
-    }
-    return;
-  }
-
-  if (mounted) {
-    setState(() {
-      _errorMessage = null;
-      _isVerifying = true;
-    });
-  }
-
-  try {
-    final result = await _apiService.verifyCode(widget.token, enteredCode);
-    print('API Response: $result');
-
-    if (result['success'] == true) {
+    if (enteredCode.length != 6) {
       if (mounted) {
-        Get.offAll(
-          () => const SignInScreen(),
-          transition: Transition.fadeIn,
-          duration: const Duration(milliseconds: 500),
+        setState(() =>
+            _errorMessage = "الرجاء إدخال الرمز كاملاً المكون من 6 أرقام");
+      }
+      return;
+    }
+
+    try {
+      final result = await _apiService.verifyCode(widget.token, enteredCode);
+      print('API Response: $result');
+
+      if (result['success'] == true) {
+       if (mounted) {
+          Get.offAll(
+            () => const SignInScreen(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 500),
+          );
+       }
+      } else {
+        throw Exception(result['message'] ?? 'Échec de la vérification');
+      }
+    } catch (e) {
+      print('Verification Error: $e');
+      if (mounted) {
+        setState(() => _isVerifying = false);
+        for (var controller in _codeControllers) {
+          controller.clear();
+        }
+        _focusNodes[0].requestFocus();
+
+        Get.snackbar(
+          '',
+          e.toString().replaceAll("Exception: ", ""),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
       }
-    } else {
-      throw Exception(result['message'] ?? 'Échec de la vérification');
-    }
-  } catch (e) {
-    print('Verification Error: $e');
-    if (mounted) {
-      setState(() => _isVerifying = false);
-      for (var controller in _codeControllers) {
-        controller.clear();
-      }
-      _focusNodes[0].requestFocus();
-      
-      Get.snackbar(
-        'خطأ',
-        e.toString().replaceAll("Exception: ", ""),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     }
   }
-}
-    
-
-    
 
   @override
   void dispose() {
@@ -199,7 +189,7 @@ class _VerificationCodeState extends State<VerificationCode> {
 
                   // Bouton de vérification
                   ElevatedButton(
-                    onPressed: _isVerifying ? null : _verifyCode,
+                    onPressed: _verifyCode,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(

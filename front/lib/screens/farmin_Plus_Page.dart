@@ -17,7 +17,7 @@ class FarmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'وقاية و أمراض النباتات',
-            imagePath: 'front/images/diseases.png',
+            imagePath: 'images/diseases.png',
             onTap: () {
               Navigator.pushNamed(context, '/diseases'); 
             },
@@ -26,7 +26,7 @@ class FarmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'قائمة المبيدات و استعمالاتها',
-            imagePath: 'front/images/pesticides.png',
+            imagePath: 'images/pesticides.png',
             onTap: () {
               Navigator.pushNamed(context, '/pesticides'); 
             },
@@ -35,7 +35,7 @@ class FarmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'حلول لتطبيق جيد',
-            imagePath: 'front/images/solutions.png',
+            imagePath: 'images/solutions.png',
             onTap: () {
               Navigator.pushNamed(context, '/solutions'); 
             },
@@ -44,7 +44,7 @@ class FarmingPlusPage extends StatelessWidget {
           _buildFeatureButton(
             context,
             title: 'الأسمدة حسب التربة',
-            imagePath: 'front\images\fertilizers.png',
+            imagePath: 'images/fertilizers.png',
             onTap: () {
               Navigator.pushNamed(context, '/fertilizer'); 
             },

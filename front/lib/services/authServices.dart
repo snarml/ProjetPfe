@@ -60,13 +60,19 @@ class ApiService {
 
     final responseData = json.decode(response.body);
 
-    if (response.statusCode == 200 && responseData['success'] == true) {
+    if (response.statusCode == 201 && responseData['success'] == true) {
+      print("success *****************");
       return {
         'token': responseData['token'],
         'user': responseData['user'],
+        'success':true ,
+        'message':responseData['message'],
       };
     } else {
-      throw Exception(responseData['message'] ?? "رمز غير صحيح، حاول مرة أخرى");
+      print("error *****************");
+
+      return responseData;
+      // throw Exception(responseData['message'] ?? "رمز غير صحيح، حاول مرة أخرى");
     }
   }
 

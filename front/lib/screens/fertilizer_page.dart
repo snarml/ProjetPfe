@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
-import 'package:bitakati_app/widgets/navigation_bar.dart';
 
 class FertilizerPage extends StatefulWidget {
   const FertilizerPage({super.key});
@@ -11,13 +10,7 @@ class FertilizerPage extends StatefulWidget {
 }
 
 class _FertilizerPageState extends State<FertilizerPage> {
-  int _selectedIndex = 1;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +62,7 @@ class _FertilizerPageState extends State<FertilizerPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Navigationbar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+    
     );
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bitakati_app/widgets/custom_appBar.dart';
-import 'package:bitakati_app/widgets/navigation_bar.dart';
 
 class SolutionsPage extends StatefulWidget {
   const SolutionsPage({super.key});
@@ -10,14 +9,7 @@ class SolutionsPage extends StatefulWidget {
 }
 
 class _SolutionsPageState extends State<SolutionsPage> {
-  int _selectedIndex = 3;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,10 +67,7 @@ class _SolutionsPageState extends State<SolutionsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Navigationbar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      
     );
   }
 

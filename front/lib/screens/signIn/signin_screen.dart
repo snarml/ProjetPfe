@@ -54,7 +54,7 @@ class _SigninScreenState extends State<SignInScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
+//    _loadSavedCredentials();
   }
 
   void _loadSavedCredentials() async {
@@ -96,6 +96,8 @@ class _SigninScreenState extends State<SignInScreen> {
               icon: Icons.phone,
               hint: 'رقم الهاتف',
               controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              maxLength: 12,
               borderColor: Colors.green,
               validator: (value) {
                 if (value == null || value.isEmpty) {

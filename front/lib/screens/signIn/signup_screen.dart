@@ -70,6 +70,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 hint: 'رقم الهاتف',
                 controller: _phoneController,
                 borderColor: Colors.green,
+                maxLength: 12,
+                keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'الرجاء إدخال رقم الهاتف';
