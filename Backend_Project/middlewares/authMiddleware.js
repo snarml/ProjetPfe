@@ -2,7 +2,7 @@
  import jwt from 'jsonwebtoken';  // Utilisation de 'import' pour jwt
 import dotenv from 'dotenv';  // Utilisation de 'import' pour dotenv
 dotenv.config();  // Chargement des variables d'environnement
-const verifyToken = (req, res, next) => {
+ export const verifyToken = (req, res, next) => {
   const token = req.header('x-auth-token');  // Récupération du token JWT
   if (!token) return res.status(401).send('Accès non autorisé');
   try {
@@ -14,5 +14,4 @@ const verifyToken = (req, res, next) => {
   }
 }
 // Exportation de la fonction middleware
-export default verifyToken;  // Exportation de la fonction middleware pour l'utiliser dans d'autres fichiers
 

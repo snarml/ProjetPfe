@@ -3,6 +3,7 @@ import express from 'express';  // Utilisation de 'import' pour Express
 import { connectDatabase } from './Config/database.js';  // Utilisation de 'import' pour la fonction de connexion
 import userRoutes from './routes/authRoutes.js';
 import dotenv from 'dotenv';
+import profileRoutes from './routes/profileRoutes.js';
 dotenv.config(); // Chargement des variables d'environnement
 const app = express();
 
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 // Utilisation des routes pour les utilisateurs
 app.use('/api',userRoutes);
+app.use('/api',profileRoutes);
 
 // Démarrage du serveur
 const PORT = 4000;
