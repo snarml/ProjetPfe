@@ -46,7 +46,8 @@ class _SignInState extends State<LoginPage> {
           Positioned(
             top: MediaQuery.of(context).size.height * 0.30,
             left: 0,
-            right: 0,
+            right: 0, 
+            bottom: 0,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20.0),
@@ -118,13 +119,12 @@ class _SignInState extends State<LoginPage> {
                   const SizedBox(height: 20),
 
                   // Contenu du formulaire (Login ou Register)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
                         child: isLoginMode ? const SignInScreen() : const SignUpScreen(),
                       ),
-                    ),
+              
                   ),
                 ],
               ),

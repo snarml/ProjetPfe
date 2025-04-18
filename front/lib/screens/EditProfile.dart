@@ -1,5 +1,6 @@
 import 'package:bitakati_app/widgets/custom_Input_filed.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Editprofile extends StatefulWidget {
   const Editprofile({super.key});
@@ -16,10 +17,24 @@ class _EditprofileState extends State<Editprofile> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  
-  
-  
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Charger les données existantes
+  }
+   Future<void> _loadUserData() async {
+    // Récupérer les données depuis SharedPreferences ou API
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nameController.text = prefs.getString('full_name') ?? '';
+      _phoneController.text = prefs.getString('phone') ?? '';
+      _stateController.text = prefs.getString('state') ?? '';
+      _cityController.text = prefs.getString('city') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +44,7 @@ class _EditprofileState extends State<Editprofile> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
+                image: AssetImage('images/avatar.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -124,6 +139,9 @@ class _EditprofileState extends State<Editprofile> {
   }
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      if (_formKey.currentState!.validate()) {
+        setState(() =>_isLoading = true);
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
       );

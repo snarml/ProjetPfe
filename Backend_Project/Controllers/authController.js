@@ -120,7 +120,7 @@ export const verifyOTP = async (req, res) => {
     if (verificationCheck.status !== 'approved') {
       return res.status(400).json({ 
         success: false,
-        message: 'Code OTP incorrect ou expiré' 
+        message: 'رمز  غير صحيح أو منتهي الصلاحية' 
       });
     }
 

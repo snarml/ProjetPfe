@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitakati_app/screens/signIn/login_page.dart';
 import 'package:bitakati_app/screens/signIn/signin_screen.dart';
 import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,14 @@ class _VerificationCodeState extends State<VerificationCode> {
 
       if (result['success'] == true) {
        if (mounted) {
+        Get.snackbar(
+          'نجاح',
+          'تم التحقق من الرمز بنجاح',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
           Get.offAll(
-            () => const SignInScreen(),
+            () => LoginPage(),
             transition: Transition.fadeIn,
             duration: const Duration(milliseconds: 500),
           );
@@ -65,7 +72,7 @@ class _VerificationCodeState extends State<VerificationCode> {
         _focusNodes[0].requestFocus();
 
         Get.snackbar(
-          '',
+          'فشل',
           e.toString().replaceAll("Exception: ", ""),
           backgroundColor: Colors.red,
           colorText: Colors.white,

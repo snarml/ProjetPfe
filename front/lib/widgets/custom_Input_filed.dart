@@ -7,7 +7,7 @@ class CustomInputField extends StatefulWidget {
   final bool obscure;
   final String? Function(String?)? validator;
   final Color borderColor;
-  final bool isPassword; // Indique si le champ est un mot de passe
+  final bool isPassword;
   final int? maxLength;
   final TextInputType? keyboardType;
 
@@ -16,59 +16,49 @@ class CustomInputField extends StatefulWidget {
     required this.icon,
     required this.hint,
     required this.controller,
-    this.isPassword = false, // Défaut à faux
+    this.isPassword = false,
     this.obscure = false,
     this.validator,
     this.maxLength,
     this.keyboardType,
     this.borderColor = Colors.transparent,
   });
+
   @override
   State<CustomInputField> createState() => _CustomInputFieldState();
 }
 
 class _CustomInputFieldState extends State<CustomInputField> {
-  bool isObscure = true; // Masque le mot de passe par défaut
+  bool isObscure = true;
+
   @override
   void initState() {
     super.initState();
-    // si le champs n'est pas un champs de mot de passe , on n'obscurit pas le texte
-    if (!widget.isPassword) {
-      isObscure = false;
-    }
+    isObscure = widget.isPassword;
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Container(
-        //ajouter un conteneur avec un ombre
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 3), // décalage de l'ombre
-            ),
-          ],
-        ),
-
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      child: Material(
+        elevation: 4,
+        shadowColor: Colors.black26,
+        borderRadius: BorderRadius.circular(15),
         child: TextFormField(
           controller: widget.controller,
           obscureText: widget.isPassword ? isObscure : false,
           textAlign: TextAlign.right,
           validator: widget.validator,
-          maxLength:widget.maxLength ,
+          maxLength: widget.maxLength,
           keyboardType: widget.keyboardType,
           decoration: InputDecoration(
+            counterText: '', // masque compteur caractères
             hintText: widget.hint,
-            hintStyle:
-                const TextStyle(color: Color.fromARGB(255, 126, 125, 125)),
+            hintStyle: const TextStyle(color: Color.fromARGB(255, 126, 125, 125)),
             filled: true,
-            fillColor: const Color.fromARGB(255, 255, 255, 255),
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             suffixIcon: Icon(widget.icon, color: Colors.green),
             prefixIcon: widget.isPassword
                 ? IconButton(
@@ -88,11 +78,13 @@ class _CustomInputFieldState extends State<CustomInputField> {
               borderSide: BorderSide(color: widget.borderColor, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: widget.borderColor, width: 1.5)),
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: widget.borderColor, width: 1.5),
+            ),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: widget.borderColor, width: 2.3)),
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: widget.borderColor, width: 2.3),
+            ),
           ),
         ),
       ),

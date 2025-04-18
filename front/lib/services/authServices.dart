@@ -1,6 +1,7 @@
 //login inscription
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -65,8 +66,8 @@ class ApiService {
       return {
         'token': responseData['token'],
         'user': responseData['user'],
-        'success':true ,
-        'message':responseData['message'],
+        'success': true,
+        'message': responseData['message'],
       };
     } else {
       print("error *****************");
@@ -93,8 +94,7 @@ class ApiService {
       if (response.statusCode == 200 && responseData['token'] != null) {
         return responseData;
       } else {
-        throw Exception(
-            responseData['error'] ?? 'Errreur lors de la connesion');
+        throw Exception(responseData['error'] ?? 'حدث خطأ أثناء الاتصال');
       }
     } catch (e) {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
@@ -117,5 +117,35 @@ class ApiService {
     } else {
       throw Exception(jsonDecode(response.body)['error'] ?? 'Erreur inconnu ');
     }
+  }
+
+  //Focntion de editProfile
+  Future<Map<String, dynamic>> editProfile(
+      String fullName,
+      String numTel,
+      String ville,
+      String pays,
+      String oldPassword,
+      String newPassword,
+      String confirmPassword) async {
+    // Récupérer le token de l'utilisateur depuis SharedPreferences ou un autre moyen
+    final token = await StorageService.getToken();
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/editProfile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': token,
+      },
+      body: json.encode({
+        'full_name': fullName,
+        'num_tel': numTel,
+        'ville': ville,
+        'pays': pays,
+        'old_password': oldPassword,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      }),
+    );
+    return jsonDecode(response.body);
   }
 }

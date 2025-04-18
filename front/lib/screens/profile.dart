@@ -1,3 +1,4 @@
+import 'package:bitakati_app/screens/EditProfile.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
               title: "معطيات",
               items: [
                 _buildSettingItem("تعديل معطيات الملف الشخصي", onTap: () {
-                  Get.toNamed('/editProfile');
+                  Get.to(() => Editprofile());
                 }),
               ],
             ),

@@ -85,6 +85,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 hint: 'الولاية',
                 controller: _stateController,
                 borderColor: Colors.green,
+                keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'الرجاء إدخال الولاية';
@@ -97,6 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 icon: Icons.location_city,
                 hint: 'المدينة',
                 controller: _cityController,
+                keyboardType: TextInputType.text,
                 borderColor: Colors.green,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
