@@ -1,4 +1,9 @@
 import 'package:bitakati_app/screens/EditProfile.dart';
+import 'package:bitakati_app/screens/favoriteLists.dart';
+import 'package:bitakati_app/screens/historyInteractionChatbot.dart';
+import 'package:bitakati_app/screens/languageSettings.dart';
+import 'package:bitakati_app/screens/purchaseTracking.dart';
+import 'package:bitakati_app/screens/salesTracking.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -60,7 +65,9 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildSectionCard(
               title: "إعدادات",
               items: [
-                _buildSettingItem("إعدادات اللغة"),
+                _buildSettingItem("إعدادات اللغة", onTap: () {
+                  Get.to(() => LanguageSettings());
+                }),
                 _buildToggleItem("إشعارات", notificationsEnabled, (val) {
                   setState(() {
                     notificationsEnabled = val;
@@ -71,15 +78,23 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildSectionCard(
               title: "متابعة",
               items: [
-                _buildSettingItem("متابعة عمليات البيع"),
-                _buildSettingItem("متابعة عمليات الشراء"),
+                _buildSettingItem("متابعة عمليات البيع", onTap: () {
+                  Get.to(() => SalesTracking());
+                }),
+                _buildSettingItem("متابعة عمليات الشراء", onTap: () {
+                  Get.to(() => PurchasesTracking());
+                }),
               ],
             ),
             _buildSectionCard(
               title: "أنشطتي",
               items: [
-                _buildSettingItem("سجل التفاعل مع المساعد الذكي"),
-                _buildSettingItem("قائمة الإعجاب"),
+                _buildSettingItem("سجل التفاعل مع المساعد الذكي", onTap: () {
+                  Get.to(() => InteractionHistory());
+                }),
+                _buildSettingItem("قائمة الإعجاب", onTap: () {
+                  Get.to(() => FavoritesList());
+                }),
               ],
             ),
           ],

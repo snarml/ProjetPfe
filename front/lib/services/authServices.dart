@@ -1,8 +1,8 @@
 //login inscription
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // L'URL de ton serveur backend
@@ -95,7 +95,7 @@ class ApiService {
         return responseData;
       } else {
         throw Exception(responseData['error'] ?? 'حدث خطأ أثناء الاتصال');
-      }
+      }   
     } catch (e) {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
@@ -129,7 +129,8 @@ class ApiService {
       String newPassword,
       String confirmPassword) async {
     // Récupérer le token de l'utilisateur depuis SharedPreferences ou un autre moyen
-    final token = await StorageService.getToken();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token') ?? '';
     final response = await http.put(
       Uri.parse('$baseUrl/api/editProfile'),
       headers: {

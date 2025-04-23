@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';  // Utilisation de l'import pour DataTypes
-import { sequelize } from '../Config/database.js';  // Assure-toi que l'import est correct
+import { DataTypes } from 'sequelize';  
+import { sequelize } from '../Config/database.js';  
 
 const User = sequelize.define('User', {
   

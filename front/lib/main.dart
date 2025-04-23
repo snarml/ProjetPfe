@@ -1,12 +1,14 @@
 import 'package:bitakati_app/routes/app_routes.dart';
 import 'package:bitakati_app/services/authServices.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   final sharedPreferences = await SharedPreferences.getInstance();
   Get.put(sharedPreferences);
   Get.put(ApiService());

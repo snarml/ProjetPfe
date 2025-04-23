@@ -4,6 +4,8 @@ import { connectDatabase } from './Config/database.js';  // Utilisation de 'impo
 import userRoutes from './routes/authRoutes.js';
 import dotenv from 'dotenv';
 import profileRoutes from './routes/profileRoutes.js';
+import commandeRoutes from './routes/commandeRoute.js'; // Importation des routes de commande
+import cartRoutes from './routes/cartRoute.js'; // Importation des routes de panier
 dotenv.config(); // Chargement des variables d'environnement
 const app = express();
 
@@ -17,7 +19,10 @@ connectDatabase();
 app.get('/', (req, res) => {
   res.send('Bienvenue sur l\'API');
 });
-
+// Utilisation des routes pour les commandes
+app.use('/api', commandeRoutes);
+// Utilisation des routes pour le panier
+app.use('/api', cartRoutes);
 
 // Utilisation des routes pour les utilisateurs
 app.use('/api',userRoutes);

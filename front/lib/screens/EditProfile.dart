@@ -1,3 +1,4 @@
+import 'package:bitakati_app/services/userManagementServices.dart';
 import 'package:bitakati_app/widgets/custom_Input_filed.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,9 +31,9 @@ class _EditprofileState extends State<Editprofile> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _nameController.text = prefs.getString('full_name') ?? '';
-      _phoneController.text = prefs.getString('phone') ?? '';
-      _stateController.text = prefs.getString('state') ?? '';
-      _cityController.text = prefs.getString('city') ?? '';
+      _phoneController.text = prefs.getString('num_tel') ?? '';
+      _stateController.text = prefs.getString('pays') ?? '';
+      _cityController.text = prefs.getString('ville') ?? '';
     });
   }
 
@@ -141,6 +142,32 @@ class _EditprofileState extends State<Editprofile> {
     if (_formKey.currentState!.validate()) {
       if (_formKey.currentState!.validate()) {
         setState(() =>_isLoading = true);
+        UserManagementServices().editProfile(
+          _nameController.text,
+          _phoneController.text,
+          _stateController.text,
+          _cityController.text,
+          _oldPasswordController.text.isNotEmpty ? _oldPasswordController.text : null,
+        _newPasswordController.text.isNotEmpty ? _newPasswordController.text : null,
+        _confirmPasswordController.text.isNotEmpty ? _confirmPasswordController.text : null,
+        ).then((response) {
+          setState(() =>_isLoading = false);
+          if (response['success']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
+            );
+            Navigator.pop(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'])),
+            );
+          }
+        }).catchError((error) {
+          setState(() =>_isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.toString())),
+          );
+        });
       }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),

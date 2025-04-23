@@ -1,63 +1,92 @@
 import User from '../models/user.js';
-
 import bcrypt from 'bcrypt';
 
-
-
-// fonction pour editProfile
 export const editProfile = async (req, res) => {
-  const userId= req.User.id;
-  const { full_name, num_tel , ville ,pays, old_password, new_password, confirm_password} = req.body;
-  try{
-    const user = await User.findById(userId);
-    if(!user) return res.status(404).json({ msg: "User not found" });
-    const fields = [];
-    const values = [];
-    if(full_name ){
-      fields.push('full_name = ?');
-      values.push(full_name);
+  const userId = req.user.id;
+  const { full_name, num_tel, ville, pays, old_password, new_password, confirm_password } = req.body;
+  
+  try {
+    // 1. Trouver l'utilisateur
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Utilisateur non trouvé"
+      });
     }
-    if(num_tel ){
-      fields.push('num_tel = ?');
-      values.push(num_tel);
-      }
-      if(ville ){
-        fields.push('ville = ?');
-        values.push(ville);
-        }
-        if(pays ){
-          fields.push('pays = ?');
-          values.push(pays);
-          }
-          if(old_password || new_password || confirm_password ){
-            if(!old_password || !new_password || !confirm_password){
-              return res.status(400).json({ msg: "Please enter all fields" });
-            }
-            const isMatch = await bcrypt.compare(old_password, user[0].password);
-            if(!isMatch){
-              return res.status(400).json({ msg: "Old password is incorrect" });
 
-            }
-            if (new_password !== confirm_password){
-              return res.status(400).json({ msg: "Passwords do not match" });
-            }
-            const hashedPassword = await bcrypt.hash(new_password, 10);
-            fields.push('password = ?');
-            values.push(hashedPassword);
-          }
+    // 2. Préparer les modifications
+    const updates = {};
+    if (full_name) updates.full_name = full_name;
+    if (num_tel) updates.num_tel = num_tel;
+    if (ville) updates.ville = ville;
+    if (pays) updates.pays = pays;
+
+    // 3. Gestion du mot de passe
+    if (old_password || new_password || confirm_password) {
+      // Validation des champs de mot de passe
+      if (!old_password || !new_password || !confirm_password) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Tous les champs de mot de passe sont requis pour la mise à jour"
+        });
+      }
       
-          if (fields.length === 0) {
-            return res.status(400).json({ message: "Aucune donnée à mettre à jour." });
-          }
-      
-          values.push(userId);
-          const updateQuery = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
-      
-          await db.query(updateQuery, values);
-          res.status(200).json({ message: "Profil mis à jour avec succès." });
-      
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: "Erreur serveur." });
-        }
-      };
+      // Vérification de l'ancien mot de passe
+      const isMatch = await bcrypt.compare(old_password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ 
+          success: false,
+          message: "L'ancien mot de passe est incorrect"
+        });
+      }
+
+      if (new_password !== confirm_password) {
+        return res.status(400).json({
+          success: false,
+          message: "Les nouveaux mots de passe ne correspondent pas"
+        });
+      }
+
+      updates.password = await bcrypt.hash(new_password, 10);
+    }
+
+    // Vérifier s'il y a des modifications
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Aucune modification apportée au profil"
+      });
+    }
+
+    // Mettre à jour l'utilisateur
+    await user.update(updates);
+    
+    // Ne pas renvoyer le mot de passe dans la réponse
+    const userData = user.get({ plain: true });
+    delete userData.password;
+
+    res.status(200).json({ 
+      success: true,
+      message: "Profil mis à jour avec succès",
+      user: userData
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+    
+    // Gestion spécifique des erreurs de validation Sequelize
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ 
+        success: false,
+        message: "Ce numéro de téléphone est déjà utilisé",
+        field: error.errors[0].path
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: "Erreur serveur lors de la mise à jour du profil"
+    });
+  }
+};

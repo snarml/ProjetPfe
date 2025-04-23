@@ -1,3 +1,4 @@
+import 'package:bitakati_app/models/product_model.dart';
 import 'package:bitakati_app/screens/ProductDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,7 @@ class ProductItem extends StatelessWidget {
   final String imagePath;
   final bool isChecked;
   final Function(bool?)? onChanged;
+  final Product product;
 
   const ProductItem({
     super.key,
@@ -18,6 +20,7 @@ class ProductItem extends StatelessWidget {
     required this.imagePath,
     required this.isChecked,
     required this.onChanged,
+    required this.product,
   });
 
   @override
@@ -34,11 +37,7 @@ class ProductItem extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                child: Image.asset(
-                  imagePath, 
-                  fit: BoxFit.cover, 
-                  width: double.infinity
-                ),
+                child: Image.asset(imagePath, fit: BoxFit.cover, width: double.infinity),
               ),
             ),
             Padding(
@@ -51,8 +50,8 @@ class ProductItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Checkbox(
-                        value: isChecked, 
-                        onChanged: onChanged, 
+                        value: isChecked,
+                        onChanged: onChanged,
                         activeColor: Colors.green,
                       ),
                       IconButton(
@@ -78,9 +77,9 @@ class ProductItem extends StatelessWidget {
         productPrice: prix,
         productImage: imagePath,
       ),
-      // Options de transition
       transition: Transition.rightToLeft,
       duration: const Duration(milliseconds: 300),
     );
   }
 }
+

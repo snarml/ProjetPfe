@@ -3,6 +3,7 @@ import twilio from 'twilio';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import {v4 as uuidv4} from 'uuid'; // Importer uuid pour générer des identifiants uniques
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -53,7 +54,7 @@ export const addUser = async (req, res) => {
     const token = jwt.sign(
       { full_name, num_tel, ville, pays, password },
       process.env.JWT_SECRET,
-      { expiresIn: '10m' } // expire dans 10 minutes
+      { expiresIn: '30m' } // expire dans 10 minutes
     );
 
     return res.status(200).json({
@@ -78,9 +79,12 @@ export const addUser = async (req, res) => {
 // 🔹 Fonction d'envoi d'OTP via Twilio
 async function sendOtp(num_tel) {
   try {
+    console.log('Tentative d\'envoi OTP à:', num_tel);
+    console.log('Service SID:', serviceSid);
     const verification = await client.verify.services(serviceSid)
       .verifications
       .create({ to: num_tel, channel: 'sms' });
+    console.log('OTP envoyé avec succès:', verification.sid);
     return verification;
   } catch (error) {
     console.error('خطأ أثناء إرسال OTP :', error);
