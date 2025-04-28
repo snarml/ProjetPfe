@@ -1,11 +1,14 @@
 // index.js
 import express from 'express';  // Utilisation de 'import' pour Express
 import { connectDatabase } from './Config/database.js';  // Utilisation de 'import' pour la fonction de connexion
-import userRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoute.js';
 import dotenv from 'dotenv';
 import profileRoutes from './routes/profileRoutes.js';
 import commandeRoutes from './routes/commandeRoute.js'; // Importation des routes de commande
 import cartRoutes from './routes/cartRoute.js'; // Importation des routes de panier
+import initAssociations from './models/initAssociations.js';
+import actualiteRoutes from './routes/newsRoutes.js'; // Importation des routes d'actualités
+
 dotenv.config(); // Chargement des variables d'environnement
 const app = express();
 
@@ -27,6 +30,12 @@ app.use('/api', cartRoutes);
 // Utilisation des routes pour les utilisateurs
 app.use('/api',userRoutes);
 app.use('/api',profileRoutes);
+// Utilisation des routes pour les actualités
+app.use('/api', actualiteRoutes); 
+
+
+// Initialisation des associations entre les modèles
+initAssociations(); 
 
 // Démarrage du serveur
 const PORT = 4000;

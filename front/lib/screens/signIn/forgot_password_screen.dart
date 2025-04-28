@@ -109,6 +109,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       // Champ de numéro de téléphone
                       CustomInputField(
                         controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 12,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'رقم الهاتف مطلوب';

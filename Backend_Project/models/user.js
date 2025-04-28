@@ -29,6 +29,10 @@ const User = sequelize.define('User', {
     is_verified: { 
       type: DataTypes.BOOLEAN,
        defaultValue: false 
+      },
+    role: {
+      type: DataTypes.ENUM('admin', 'agriculteur','prestataire','citoyen'), // Enum pour les rôles
+      defaultValue: 'agriculteur'
       }
 }, {
   tableName: 'users',  // Nom de la table dans la base de données

@@ -5,7 +5,7 @@ import Cart from '../models/cartModel.js';
 
 export const passerCommande = async (req, res) => {
   try {
-    const utilisateur_id = req.body.utilisateur_id;
+    const utilisateur_id = req.body.user_id;
 
     const panier = await Cart.findAll({ where: { user_id: utilisateur_id } });
 
@@ -13,7 +13,7 @@ export const passerCommande = async (req, res) => {
       return res.status(400).json({ message: 'Panier vide' });
     }
 
-    const commande = await Commande.create({ utilisateur_id });
+    const commande = await Commande.create({ utilisateur_id, total: 0 });
     let total = 0;
 
     for (const item of panier) {
@@ -44,18 +44,31 @@ export const passerCommande = async (req, res) => {
     res.status(201).json({ message: 'Commande passée avec succès', commande });
   } catch (error) {
     console.error(error);
+    console.error("Erreur dans passerCommande:", error); 
+
     res.status(500).json({ message: 'Erreur serveur', error });
   }
 };
 
 export const getCommandesUtilisateur = async (req, res) => {
+  const utilisateurId = req.params.id;
+
+  if (!utilisateurId) {
+    return res.status(400).json({ message: 'ID utilisateur manquant' });
+  }
+
   try {
     const commandes = await Commande.findAll({
-      where: { utilisateur_id: req.params.id },
-      include: [{ model: Produit, through: { attributes: ['quantite'] } }]
+      where: { utilisateur_id: utilisateurId },
+      include: [{
+        model: Produit,
+        through: { attributes: ['quantite'] } // depuis table pivot commande_produits
+      }]
     });
+
     res.status(200).json(commandes);
   } catch (error) {
+    console.error('Erreur lors de la récupération des commandes :', error);
     res.status(500).json({ message: 'Erreur serveur', error });
   }
 };

@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:bitakati_app/screens/CartPage.dart';
-import 'package:bitakati_app/screens/messagePage.dart';
+import 'package:bitakati_app/screens/messageSearchScreen.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/profile.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +96,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 icon: const FaIcon(FontAwesomeIcons.solidCommentDots, size: 20),
                 color: Colors.green,
                 onPressed: () {
-                  Get.to(() => const Messagepage());
+                  Get.to(() => const MessageSearchScreen());
                 },
               ),
             ],

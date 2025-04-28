@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../Config/database.js';
+import User from './user.js';
+import Produit from './productModel.js';
 
 const Cart = sequelize.define('Cart', {
   user_id: {
@@ -35,5 +37,17 @@ Cart.associate = (models) => {
   Cart.belongsTo(models.User, { foreignKey: 'user_id' });
   Cart.belongsTo(models.Produit, { foreignKey: 'Produit_id' });
 }
+//associer cart avec user et produit
+Cart.belongsToMany(User, {
+  through: 'Cart',
+  foreignKey: 'user_id',
+  otherKey: 'produit_id'
+});
+Cart.belongsToMany(Produit, {
+  through: 'Cart',
+  foreignKey: 'produit_id',
+  otherKey: 'user_id'
+});
+
 
 export default Cart;

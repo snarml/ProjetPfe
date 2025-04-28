@@ -1,4 +1,3 @@
-import 'package:bitakati_app/models/MarketCategorie.dart';
 import 'package:bitakati_app/screens/CartPage.dart';
 import 'package:bitakati_app/screens/addProductPage.dart';
 import 'package:bitakati_app/widgets/ProductItem.dart';

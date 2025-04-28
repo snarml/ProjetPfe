@@ -50,7 +50,7 @@ class _EditprofileState extends State<Editprofile> {
               ),
             ),
             child: Container(
-              color: Color.fromARGB(255, 122, 169, 92),
+              color: Colors.white,
             ),
           ),
           SafeArea(
@@ -67,7 +67,7 @@ class _EditprofileState extends State<Editprofile> {
                   const Text(
                     'تعديل الملف الشخصي',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.green,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -78,7 +78,7 @@ class _EditprofileState extends State<Editprofile> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.white.withOpacity(0.2)),
                       ),
@@ -117,7 +117,7 @@ class _EditprofileState extends State<Editprofile> {
                           ElevatedButton(
                             onPressed: _submitForm,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor: Colors.green.withOpacity(0.5),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                               shape: RoundedRectangleBorder(

@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../Config/database.js';
+import Produit from './productModel.js';
+import Commande from './commandeModel.js';
 
 const CommandeProduit = sequelize.define('CommandeProduit', {
   commande_id: {
@@ -11,6 +13,7 @@ const CommandeProduit = sequelize.define('CommandeProduit', {
     },
     onDelete: 'CASCADE',
     primaryKey: true
+    
   },
   produit_id: {
     type: DataTypes.INTEGER,
@@ -30,5 +33,7 @@ const CommandeProduit = sequelize.define('CommandeProduit', {
   tableName: 'commande_produits',
   timestamps: false
 });
+// Association avec le modèle Commande
+
 
 export default CommandeProduit;
