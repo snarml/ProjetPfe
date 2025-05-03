@@ -1,44 +1,48 @@
 import jwt from 'jsonwebtoken';  
-import dotenv from 'dotenv';  
+import dotenv from 'dotenv';  // Importation de dotenv pour gérer les variables d'environnement
 
 dotenv.config();
 
 export const verifyToken = (req, res, next) => {
-  const token = req.header('x-auth-token');
-  
-  // Vérification de l'existence du token
-  if (!token) {
+  console.log(' Headers:', req.headers); // ← Affiche tous les headers
+
+  const authHeader = req.header('Authorization');
+  console.log('Received Authorization Header:', authHeader); // 🔥 Ajoute ça
+
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No token provided or incorrect format');  // 🔥 Ajouter ce log
+
     return res.status(401).json({
       success: false,
       message: 'Accès refusé - Aucun token fourni'
     });
   }
 
+  const token = authHeader.split(' ')[1]; // récupérer seulement le token sans "Bearer "
+  console.log('Token récupéré:', token);
+
   try {
-    // Vérification et décodage du token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Vérification que le token contient bien un ID utilisateur
+
     if (!decoded.id && !decoded.num_tel) {
       return res.status(401).json({
         success: false,
         message: 'Token invalide - Informations utilisateur manquantes'
       });
     }
-    
-    // Ajout des informations utilisateur à la requête
+
     req.user = {
       id: decoded.id,
-      num_tel: decoded.num_tel,  // Ajout du numéro de téléphone décodé
-      
+      num_tel: decoded.num_tel,
+      role: decoded.role, 
     };
-    
+
     next();
-    
+
   } catch (error) {
-    // Gestion différenciée des erreurs JWT
     let message = 'Token invalide';
-    
+
     if (error.name === 'TokenExpiredError') {
       message = 'Token expiré';
     } else if (error.name === 'JsonWebTokenError') {
@@ -51,3 +55,4 @@ export const verifyToken = (req, res, next) => {
     });
   }
 };
+export default verifyToken; // Exportation de la fonction pour l'utiliser dans d'autres fichiers

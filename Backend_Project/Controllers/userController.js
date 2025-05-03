@@ -2,11 +2,10 @@ import User from '../models/user.js';
 import twilio from 'twilio';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { decode } from 'jsonwebtoken';
 import {v4 as uuidv4} from 'uuid'; // Importer uuid pour générer des identifiants uniques
-
 // Charger les variables d'environnement
-dotenv.config();
+dotenv.config({ path: './.env' });
 
 // Configurer Twilio
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -94,15 +93,16 @@ async function sendOtp(num_tel) {
 // 🔹 Vérifier le code OTP et enregistrer l'utilisateur
 export const verifyOTP = async (req, res) => {
   const { otp_code } = req.body;
-  const token = req.headers['x-auth-token'];
+  const authHeader = req.header('Authorization');
 
-  // Validation des entrées
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ 
       success: false,
       message: 'Token d\'authentification manquant' 
     });
   }
+
+  const token = authHeader.split(' ')[1];
 
   if (!otp_code || otp_code.length !== 6) {
     return res.status(400).json({ 
@@ -112,11 +112,9 @@ export const verifyOTP = async (req, res) => {
   }
 
   try {
-    // Vérification du token JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { num_tel, password } = decoded;
 
-    // Vérification OTP avec Twilio
     const verificationCheck = await client.verify.v2.services(process.env.TWILIO_VERIFY_SERVICE_SID)
       .verificationChecks
       .create({ to: num_tel, code: otp_code });
@@ -124,11 +122,10 @@ export const verifyOTP = async (req, res) => {
     if (verificationCheck.status !== 'approved') {
       return res.status(400).json({ 
         success: false,
-        message: 'رمز  غير صحيح أو منتهي الصلاحية' 
+        message: 'رمز غير صحيح أو منتهي الصلاحية' 
       });
     }
 
-    // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ where: { num_tel } });
     if (existingUser) {
       return res.status(409).json({ 
@@ -137,7 +134,6 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    // Création de l'utilisateur
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = await User.create({
       ...decoded,
@@ -145,11 +141,10 @@ export const verifyOTP = async (req, res) => {
       is_verified: true,
     });
 
-    // Générer un nouveau token pour la session
     const authToken = jwt.sign(
       { id: newUser.id, num_tel: newUser.num_tel },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
 
     return res.status(201).json({
@@ -166,7 +161,6 @@ export const verifyOTP = async (req, res) => {
   } catch (error) {
     console.error('Erreur OTP:', error);
 
-    // Gestion spécifique des erreurs JWT
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ 
         success: false,
@@ -207,12 +201,21 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ error: 'كلمة مرور غير صحيحة' });
 
-    const payload = { id: user.id, num_tel: user.num_tel };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const payload = { id: user.id, num_tel: user.num_tel , role: user.role };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.status(200).json({
       message: 'تم الاتصال بنجاح',
-      token
+      token,
+      user: {
+        id: user.id,
+        num_tel: user.num_tel,
+        full_name: user.full_name,
+        ville: user.ville,
+        pays: user.pays,
+        role: user.role
+      }
+      
     });
   } catch (err) {
     console.error(' :خطأ في الاتصال ', err);
@@ -317,14 +320,14 @@ export const deleteAccount = async (req, res) => {
 
   try {
     const user = await User.findByPk(id);
-    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ❌' });
-
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé ' });
+    
     await User.destroy({ where: { id } });
     res.status(200).json({
-      message: 'Compte supprimé avec succès ✅',
+      message: 'Compte supprimé avec succès ',
     });
   } catch (error) {
-    console.error('Erreur lors de la suppression du compte ❌:', error);
+    console.error('Erreur lors de la suppression du compte :', error);
     res.status(500).json({
       status: 'FAILED',
       message: 'Erreur serveur',
@@ -527,7 +530,4 @@ export const listUsers = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Erreur serveur" });
   }
-};
-
-
-
+}; 

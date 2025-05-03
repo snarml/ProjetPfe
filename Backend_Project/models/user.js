@@ -1,7 +1,13 @@
 import { DataTypes } from 'sequelize';  
 import { sequelize } from '../Config/database.js';  
+import RoleChangeRequest from './roleChangeRequest.js';
 
 const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true, // Génère automatiquement un ID unique
+  },
   
   full_name: {
     type: DataTypes.STRING,
@@ -41,6 +47,7 @@ const User = sequelize.define('User', {
   updatedAt: 'updated_at'   // Nom de la colonne pour la date de mise à jour
 
 });
+
 
 // Exportation par défaut pour que l'import fonctionne correctement
 export default User;
