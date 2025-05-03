@@ -30,13 +30,13 @@ class _ProfilePageState extends State<ProfilePage> {
           onPressed: () {
             Get.offAll(()=> Navigationbar(selectedIndex : 0));
           },
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
         ),
         centerTitle: true,
         title: Text(
           'الملف الشخصي',
           style: TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 22.sp,
           ),

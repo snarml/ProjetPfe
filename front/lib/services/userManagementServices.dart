@@ -1,43 +1,63 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
 class UserManagementServices {
-  // L'URL de ton serveur backend
-  static const String baseUrl = 'http://10.0.2.2:4000';
-  // Function to edit user profile
+  static const String baseUrl = 'http://192.168.1.18:4000';
+
   Future<Map<String, dynamic>> editProfile(
-      String? fullName,
-      String? numTel,
-      String? ville,
-      String? pays,
-      String? oldPassword,
-      String? newPassword,
-      String? confirmPassword) async {
-    // Récupérer le token de l'utilisateur depuis SharedPreferences ou un autre moyen
+    String? fullName,
+    String? numTel,
+    String? ville,
+    String? pays,
+    String? oldPassword,
+    String? newPassword,
+    String? confirmPassword,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token') ?? '';
-    final response = await http.put(
-      Uri.parse('$baseUrl/api/editProfile'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      },
-      body: json.encode({
-        'full_name': fullName,
-        'num_tel': numTel,
-        'ville': ville,
-        'pays': pays,
-        'old_password': oldPassword,
-        'new_password': newPassword,
-        'confirm_password': confirmPassword,
-      }),
-    );
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      // Si la réponse est réussie, on peut traiter les données
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to edit profile: ${response.body}');
+
+    // Crée dynamiquement un body sans les champs null ou vides
+    final Map<String, dynamic> requestBody = {};
+    if (fullName != null && fullName.trim().isNotEmpty)
+      requestBody['full_name'] = fullName;
+    if (numTel != null && numTel.trim().isNotEmpty)
+      requestBody['num_tel'] = numTel;
+    if (ville != null && ville.trim().isNotEmpty) requestBody['ville'] = ville;
+    if (pays != null && pays.trim().isNotEmpty) requestBody['pays'] = pays;
+    if (oldPassword != null && oldPassword.trim().isNotEmpty)
+      requestBody['old_password'] = oldPassword;
+    if (newPassword != null && newPassword.trim().isNotEmpty)
+      requestBody['new_password'] = newPassword;
+    if (confirmPassword != null && confirmPassword.trim().isNotEmpty)
+      requestBody['confirm_password'] = confirmPassword;
+
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/editProfile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(requestBody),
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // recharger les nouvelles données après update
+        return jsonDecode( response.body);
+      } else {
+        final error = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message':
+              error['message'] ?? 'Erreur lors de la mise à jour du profil.'
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Erreur réseau ou serveur: ${e.toString()}',
+      };
     }
   }
 }

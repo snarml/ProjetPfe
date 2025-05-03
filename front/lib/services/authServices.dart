@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // L'URL de ton serveur backend
-  static const String baseUrl = 'http://10.0.2.2:4000';
+  static const String baseUrl = 'http://192.168.1.18:4000';
 
   // Fonction de Sign Up
   Future<Map<String, dynamic>> signUp(BuildContext context, String fullName,
@@ -54,7 +54,7 @@ class ApiService {
       url,
       headers: {
         'Content-Type': 'application/json',
-        'x-auth-token': token,
+        'Authorization': 'Bearer $token',
       },
       body: json.encode({'otp_code': enteredCode}),
     );
@@ -62,18 +62,14 @@ class ApiService {
     final responseData = json.decode(response.body);
 
     if (response.statusCode == 201 && responseData['success'] == true) {
-      print("success *****************");
       return {
         'token': responseData['token'],
         'user': responseData['user'],
         'success': true,
         'message': responseData['message'],
       };
-    } else {
-      print("error *****************");
-
+    } else{
       return responseData;
-      // throw Exception(responseData['message'] ?? "رمز غير صحيح، حاول مرة أخرى");
     }
   }
 
@@ -92,10 +88,19 @@ class ApiService {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
+        // Sauvegarder le token dans les SharedPreferences
+         final prefs = await SharedPreferences.getInstance();
+         prefs.setString('token', responseData['token']);
+         prefs.setString('full_name', responseData['user']['full_name']);
+         prefs.setString('num_tel', responseData['user']['num_tel']);
+         prefs.setString('ville', responseData['user']['ville']);
+         prefs.setString('pays', responseData['user']['pays']);
+         prefs.setString('role', responseData['user']['role']);
+      
         return responseData;
       } else {
         throw Exception(responseData['error'] ?? 'حدث خطأ أثناء الاتصال');
-      }   
+      }
     } catch (e) {
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
@@ -119,34 +124,5 @@ class ApiService {
     }
   }
 
-  //Focntion de editProfile
-  Future<Map<String, dynamic>> editProfile(
-      String fullName,
-      String numTel,
-      String ville,
-      String pays,
-      String oldPassword,
-      String newPassword,
-      String confirmPassword) async {
-    // Récupérer le token de l'utilisateur depuis SharedPreferences ou un autre moyen
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final response = await http.put(
-      Uri.parse('$baseUrl/api/editProfile'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      },
-      body: json.encode({
-        'full_name': fullName,
-        'num_tel': numTel,
-        'ville': ville,
-        'pays': pays,
-        'old_password': oldPassword,
-        'new_password': newPassword,
-        'confirm_password': confirmPassword,
-      }),
-    );
-    return jsonDecode(response.body);
-  }
+  
 }
