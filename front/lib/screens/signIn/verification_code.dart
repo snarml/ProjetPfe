@@ -1,110 +1,84 @@
 import 'dart:async';
+import 'package:bitakati_app/screens/signIn/login_page.dart';
+import 'package:bitakati_app/screens/signIn/signin_screen.dart';
+import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 class VerificationCode extends StatefulWidget {
   final String phone;
-  const VerificationCode({super.key, required this.phone});
+  final String token;
+
+  const VerificationCode({super.key, required this.phone, required this.token});
 
   @override
   State<VerificationCode> createState() => _VerificationCodeState();
 }
 
 class _VerificationCodeState extends State<VerificationCode> {
-  final List<TextEditingController> _codeControllers = List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> _codeControllers =
+      List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
-  final String _correctCode = "123456";
-  bool _isResendEnabled = false;
-  int _timerSeconds = 60;
-  Timer? _timer;
+
   String? _errorMessage;
+  bool _isVerifying = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _startResendTimer();
-  }
-
-  void _startResendTimer() {
-    setState(() {
-      _isResendEnabled = false;
-      _timerSeconds = 60;
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_timerSeconds > 0) {
-          _timerSeconds--;
-        } else {
-          _isResendEnabled = true;
-          _timer?.cancel();
-        }
-      });
-    });
-  }
+  final ApiService _apiService = ApiService();
 
   String _getCode() {
     return _codeControllers.map((controller) => controller.text).join();
   }
 
-  void _verifyCode() async {
+  Future<void> _verifyCode() async {
     final enteredCode = _getCode();
 
     if (enteredCode.length != 6) {
-      setState(() {
-        _errorMessage = "الرجاء إدخال الرمز كاملاً المكون من 6 أرقام";
-      });
+      if (mounted) {
+        setState(() =>
+            _errorMessage = "الرجاء إدخال الرمز كاملاً المكون من 6 أرقام");
+      }
       return;
     }
 
-    setState(() {
-      _errorMessage = null;
-    });
+    try {
+      final result = await _apiService.verifyCode(widget.token, enteredCode);
+      print('API Response: $result');
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (enteredCode == _correctCode) {
-      Get.dialog(
-        AlertDialog(
-          title: const Text("!نجاح", textAlign: TextAlign.center),
-          content: const Text("تم التحقق بنجاح", textAlign: TextAlign.center),
-          actions: [
-            TextButton(
-              onPressed: () => Get.offAllNamed('/login'),
-              child: Center(
-                child: Container(
-                  
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(15)),
-                  child: const Text("الانتقال إلى تسجيل الدخول", style: TextStyle(color: Colors.white),
-                ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      setState(() {
-        _errorMessage = "رمز غير صحيح، حاول مرة أخرى";
-      });
-      for (var controller in _codeControllers) {
-        controller.clear();
+      if (result['success'] == true) {
+       if (mounted) {
+        Get.snackbar(
+          'نجاح',
+          'تم التحقق من الرمز بنجاح',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+          Get.offAll(
+            () => LoginPage(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 500),
+          );
+       }
+      } else {
+        throw Exception(result['message'] ?? 'Échec de la vérification');
       }
-      _focusNodes[0].requestFocus();
-    }
-  }
+    } catch (e) {
+      print('Verification Error: $e');
+      if (mounted) {
+        setState(() => _isVerifying = false);
+        for (var controller in _codeControllers) {
+          controller.clear();
+        }
+        _focusNodes[0].requestFocus();
 
-  void _resendCode() {
-    Get.snackbar("إعادة إرسال", "تم إرسال رمز جديد إلى ${widget.phone}",
-        snackPosition: SnackPosition.TOP, backgroundColor: Colors.blue, colorText: Colors.white);
-
-    for (var controller in _codeControllers) {
-      controller.clear();
+        Get.snackbar(
+          'فشل',
+          e.toString().replaceAll("Exception: ", ""),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     }
-    _focusNodes[0].requestFocus();
-    _startResendTimer();
   }
 
   @override
@@ -115,7 +89,6 @@ class _VerificationCodeState extends State<VerificationCode> {
     for (var node in _focusNodes) {
       node.dispose();
     }
-    _timer?.cancel();
     super.dispose();
   }
 
@@ -142,73 +115,120 @@ class _VerificationCodeState extends State<VerificationCode> {
               padding: const EdgeInsets.all(25.0),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -5))],
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30)),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, -5))
+                ],
               ),
               child: Column(
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      
-                      const Text(
-                        textAlign: TextAlign.center, 
-                        "تأكيد رقم الهاتف", 
-                      
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      
-                      const SizedBox(width: 40),
+                      Text("تأكيد رقم الهاتف",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 40),
                     ],
                   ),
                   const SizedBox(height: 20),
                   const Icon(Icons.message, size: 70, color: Colors.green),
                   const SizedBox(height: 20),
-                  Text("أدخل الكود المرسل إلى", textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
-                  Text(widget.phone, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  const Text("أدخل الكود المرسل إلى",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18)),
+                  Text(widget.phone,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green)),
                   const SizedBox(height: 30),
                   Directionality(
                     textDirection: TextDirection.ltr,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(6, (index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: TextField(
-                            controller: _codeControllers[index],
-                            focusNode: _focusNodes[index],
-                            textAlign: TextAlign.center,
-                            keyboardType: TextInputType.number,
-                            maxLength: 1,
-                            decoration: InputDecoration(
-                              counter: const SizedBox.shrink(),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.green)),
-                            ),
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < 5) {
-                                _focusNodes[index + 1].requestFocus();
-                              }
-                              if (_getCode().length == 6) {
-                                _verifyCode();
-                              }
-                            },
-                          ),
-                        ),
-                      )),
-                    ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                            6,
+                            (index) => Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: SizedBox(
+                                    width: 40,
+                                    height: 40,
+                                    child: TextField(
+                                      controller: _codeControllers[index],
+                                      focusNode: _focusNodes[index],
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 1,
+                                      decoration: InputDecoration(
+                                        counter: const SizedBox.shrink(),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                                color: Colors.green)),
+                                      ),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      onChanged: (value) {
+                                        if (value.isNotEmpty && index < 5) {
+                                          _focusNodes[index + 1].requestFocus();
+                                        } else if (value.isEmpty && index > 0) {
+                                          // Retour au champ précédent si backspace
+                                          _focusNodes[index - 1].requestFocus();
+                                        }
+                                        // Pas de vérification automatique ici
+                                      },
+                                    ),
+                                  ),
+                                ))),
                   ),
+                  const SizedBox(height: 20),
+
+                  // Bouton de vérification
+                  ElevatedButton(
+                    onPressed: _verifyCode,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: _isVerifying
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ))
+                        : const Text(
+                            "تحقق من الرمز",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+
                   if (_errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
-                      child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                      child: Text(_errorMessage!,
+                          style: const TextStyle(color: Colors.red)),
                     ),
-                  const SizedBox(height: 30),
-                  TextButton(
-                    onPressed: _isResendEnabled ? _resendCode : null,
-                    child: Text("إعادة إرسال الرمز (${_timerSeconds}s)", style: TextStyle(color: _isResendEnabled ? Colors.green : Colors.grey)),
-                  ),
                 ],
               ),
             ),

@@ -1,18 +1,53 @@
-//Middleware pour vérifier le token JWT
- import jwt from 'jsonwebtoken';  // Utilisation de 'import' pour jwt
-import dotenv from 'dotenv';  // Utilisation de 'import' pour dotenv
-dotenv.config();  // Chargement des variables d'environnement
-const verifyToken = (req, res, next) => {
-  const token = req.header('x-auth-token');  // Récupération du token JWT
-  if (!token) return res.status(401).send('Accès non autorisé');
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Vérification du token
-    req.user = decoded;  // Ajout des informations de l'utilisateur à la requête
-    next();  // Passe à la prochaine fonction middleware ou route
-  } catch (ex) {
-    res.status(400).send('Token invalide');  // Envoie une réponse d'erreur si le token est invalide
-  }
-}
-// Exportation de la fonction middleware
-export default verifyToken;  // Exportation de la fonction middleware pour l'utiliser dans d'autres fichiers
+import jwt from 'jsonwebtoken';  
+import dotenv from 'dotenv';  
 
+dotenv.config();
+
+export const verifyToken = (req, res, next) => {
+  const token = req.header('x-auth-token');
+  
+  // Vérification de l'existence du token
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Accès refusé - Aucun token fourni'
+    });
+  }
+
+  try {
+    // Vérification et décodage du token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Vérification que le token contient bien un ID utilisateur
+    if (!decoded.id && !decoded.num_tel) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token invalide - Informations utilisateur manquantes'
+      });
+    }
+    
+    // Ajout des informations utilisateur à la requête
+    req.user = {
+      id: decoded.id,
+      num_tel: decoded.num_tel,  // Ajout du numéro de téléphone décodé
+      
+    };
+    
+    next();
+    
+  } catch (error) {
+    // Gestion différenciée des erreurs JWT
+    let message = 'Token invalide';
+    
+    if (error.name === 'TokenExpiredError') {
+      message = 'Token expiré';
+    } else if (error.name === 'JsonWebTokenError') {
+      message = 'Token JWT malformé';
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: `Erreur d'authentification - ${message}`
+    });
+  }
+};

@@ -1,10 +1,15 @@
 import 'package:bitakati_app/routes/app_routes.dart';
+import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-
-void main() {
+import 'package:shared_preferences/shared_preferences.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final sharedPreferences = await SharedPreferences.getInstance();
+  Get.put(sharedPreferences);
+  Get.put(ApiService());
   runApp(MyApp());
 }
 
@@ -43,11 +48,11 @@ class SharedLayout extends StatelessWidget {
             // Image de fond agricole (responsive)
             Image.asset(
               'images/sign_in.jpeg',
-              height: 180.h,  // Adaptatif
+              height: 180.h, // Adaptatif
               width: double.infinity,
               fit: BoxFit.cover,
             ),
-            
+
             // Contenu spécifique à chaque page
             Expanded(
               child: Padding(

@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';  // Utilisation de l'import pour DataTypes
-import { sequelize } from '../Config/database.js';  // Assure-toi que l'import est correct
+import { DataTypes } from 'sequelize';  
+import { sequelize } from '../Config/database.js';  
 
 const User = sequelize.define('User', {
   
@@ -29,6 +29,10 @@ const User = sequelize.define('User', {
     is_verified: { 
       type: DataTypes.BOOLEAN,
        defaultValue: false 
+      },
+    role: {
+      type: DataTypes.ENUM('admin', 'agriculteur','prestataire','citoyen'), // Enum pour les rôles
+      defaultValue: 'agriculteur'
       }
 }, {
   tableName: 'users',  // Nom de la table dans la base de données

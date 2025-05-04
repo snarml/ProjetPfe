@@ -1,5 +1,7 @@
+import 'package:bitakati_app/services/userManagementServices.dart';
 import 'package:bitakati_app/widgets/custom_Input_filed.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Editprofile extends StatefulWidget {
   const Editprofile({super.key});
@@ -16,10 +18,24 @@ class _EditprofileState extends State<Editprofile> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  
-  
-  
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Charger les données existantes
+  }
+   Future<void> _loadUserData() async {
+    // Récupérer les données depuis SharedPreferences ou API
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nameController.text = prefs.getString('full_name') ?? '';
+      _phoneController.text = prefs.getString('num_tel') ?? '';
+      _stateController.text = prefs.getString('pays') ?? '';
+      _cityController.text = prefs.getString('ville') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +45,12 @@ class _EditprofileState extends State<Editprofile> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
+                image: AssetImage('images/avatar.png'),
                 fit: BoxFit.cover,
               ),
             ),
             child: Container(
-              color: Color.fromARGB(255, 122, 169, 92),
+              color: Colors.white,
             ),
           ),
           SafeArea(
@@ -45,13 +61,13 @@ class _EditprofileState extends State<Editprofile> {
                   const SizedBox(height: 20),
                   const CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/avatar.png'),
+                    backgroundImage: AssetImage('images/avatar.png'),
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'تعديل الملف الشخصي',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.green,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -62,7 +78,7 @@ class _EditprofileState extends State<Editprofile> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: Colors.white.withOpacity(0.2)),
                       ),
@@ -101,7 +117,7 @@ class _EditprofileState extends State<Editprofile> {
                           ElevatedButton(
                             onPressed: _submitForm,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor: Colors.green.withOpacity(0.5),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                               shape: RoundedRectangleBorder(
@@ -124,6 +140,35 @@ class _EditprofileState extends State<Editprofile> {
   }
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      if (_formKey.currentState!.validate()) {
+        setState(() =>_isLoading = true);
+        UserManagementServices().editProfile(
+          _nameController.text,
+          _phoneController.text,
+          _stateController.text,
+          _cityController.text,
+          _oldPasswordController.text.isNotEmpty ? _oldPasswordController.text : null,
+        _newPasswordController.text.isNotEmpty ? _newPasswordController.text : null,
+        _confirmPasswordController.text.isNotEmpty ? _confirmPasswordController.text : null,
+        ).then((response) {
+          setState(() =>_isLoading = false);
+          if (response['success']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
+            );
+            Navigator.pop(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'])),
+            );
+          }
+        }).catchError((error) {
+          setState(() =>_isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.toString())),
+          );
+        });
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
       );
