@@ -3,15 +3,15 @@ import { sequelize } from '../Config/database.js';
 import User from './user.js'
 
 const Notification = sequelize.define('Notification', {
-  title: {
+  titre: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  content: {
+  description: {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  user_id: {
+  utilisateur_id: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
