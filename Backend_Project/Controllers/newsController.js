@@ -14,7 +14,7 @@ export const createActualite = async (req, res) => {
     const created_by = req.user.id;
 
     // Créer l'actualité
-    const actualite = await Actualite.create({ titre, description, image_url, created_by: req.user.id });
+    const actualite = await Actualite.create({ titre, description, image_url, created_by });
 
     // Trouver tous les utilisateurs agriculteurs
     const agriculteurs = await User.findAll({ where: { role: 'agriculteur' } });
@@ -22,9 +22,9 @@ export const createActualite = async (req, res) => {
     if (agriculteurs.length > 0) {
       // Créer une notification pour chaque agriculteur
       const notifications = agriculteurs.map((agriculteur) => ({
-        title: `Nouvelle opportunité : ${titre}`,
-        content: description,
-        user_id: agriculteur.id
+        titre: `Nouvelle opportunité : ${titre}`,
+        description: description,
+        utilisateur_id: agriculteur.id
       }));
 
       await Notification.bulkCreate(notifications);
@@ -49,7 +49,7 @@ export const getAllActualites = async (req, res) => {
         {
           model: User,
           attributes: ['id', 'full_name'],
-          as: 'creator' // S'assurer que l'alias correspond à ton association belongsTo
+          as: 'creator' 
         }
       ]
     });
