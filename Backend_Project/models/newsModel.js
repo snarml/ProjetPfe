@@ -12,7 +12,7 @@ const Actualite = sequelize.define("Actualite", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  contenu: {
+  description :{
     type: DataTypes.TEXT,
     allowNull: false,
   },
@@ -30,16 +30,7 @@ const Actualite = sequelize.define("Actualite", {
   createdAt: 'created_at',
   updatedAt: false,
 });
- //  Relation avec le modèle User
- User.hasMany(Actualite, {
-  foreignKey: 'created_by',
-  sourceKey: 'id'
-});
-Actualite.belongsTo(User, {
-  foreignKey: 'created_by',
-  as: 'creator'
-});
-
+ 
 
 
 export default Actualite;

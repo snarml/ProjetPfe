@@ -5,24 +5,50 @@ import 'package:bitakati_app/screens/messageSearchScreen.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppbar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppbar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
+  State<CustomAppbar> createState() => _CustomAppbarState();
+}
+
+class _CustomAppbarState extends State<CustomAppbar> {
+  String fullName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      fullName = prefs.getString('full_name') ?? '';
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppBar(
+    return PreferredSize(
+      preferredSize:  Size.fromHeight(100.h),
+      child: 
+    
+    AppBar(
       backgroundColor: Colors.white,
       iconTheme: const IconThemeData(color: Colors.green),
       title: Row(
         textDirection: TextDirection.rtl,
         children: <Widget>[
-          // Profile icon with modern look
+          // Profile icon
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
@@ -37,63 +63,46 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               constraints: const BoxConstraints(),
             ),
           ),
-          const SizedBox(width: 10),
-          const Column(
+          const SizedBox(width: 5),
+          Expanded(
+             child : Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('! مرحبا  ',
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold)),
-              Text('! اكتشف وتعلم معنا',
+              Text(
+                '! مرحبا ${fullName.isNotEmpty ? fullName : ''}',
+                style: const TextStyle(
+                    fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              const Text('! اكتشف وتعلم معنا',
                   style: TextStyle(fontSize: 12, color: Colors.black)),
             ],
           ),
-          const Spacer(),
+          ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Modern shopping cart icon
               IconButton(
-                icon: const FaIcon(FontAwesomeIcons.cartShopping, size: 20),
+                icon: const FaIcon(FontAwesomeIcons.cartShopping, size: 18),
                 color: Colors.green,
                 onPressed: () {
                   Get.to(() => const CartPage());
                 },
               ),
               const SizedBox(width: 8),
-              // Modern notification icon with badge potential
               Stack(
                 children: [
                   IconButton(
-                    icon: const FaIcon(FontAwesomeIcons.solidBell, size: 20),
+                    icon: const FaIcon(FontAwesomeIcons.solidBell, size: 18),
                     color: Colors.green,
                     onPressed: () {
                       Get.to(() => const NotificationPage());
                     },
                   ),
-                  // You can add a badge here if needed
-                  // Positioned(
-                  //   right: 8,
-                  //   top: 8,
-                  //   child: Container(
-                  //     padding: const EdgeInsets.all(2),
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.red,
-                  //       borderRadius: BorderRadius.circular(6),
-                  //     constraints: const BoxConstraints(
-                  //       minWidth: 12,
-                  //       minHeight: 12,
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
-              const SizedBox(width: 8),
-              // Modern message icon
+              const SizedBox(width: 5),
               IconButton(
-                icon: const FaIcon(FontAwesomeIcons.solidCommentDots, size: 20),
+                icon: const FaIcon(FontAwesomeIcons.solidCommentDots, size: 18),
                 color: Colors.green,
                 onPressed: () {
                   Get.to(() => const MessageSearchScreen());
@@ -103,6 +112,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

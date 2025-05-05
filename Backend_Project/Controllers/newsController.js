@@ -4,16 +4,17 @@ import Notification from "../models/notificationModel.js";
 
 export const createActualite = async (req, res) => {
   try {
-    const { titre, contenu, image_url } = req.body;
+    const { titre, description, image_url } = req.body;
+    
 
-    if (!titre || !contenu) {
-      return res.status(400).json({ message: "Titre et contenu sont obligatoires." });
+    if (!titre || !description) {
+      return res.status(400).json({ message: "Titre et la description sont obligatoires." });
     }
 
     const created_by = req.user.id;
 
     // Créer l'actualité
-    const actualite = await Actualite.create({ titre, contenu, image_url, created_by });
+    const actualite = await Actualite.create({ titre, description, image_url, created_by: req.user.id });
 
     // Trouver tous les utilisateurs agriculteurs
     const agriculteurs = await User.findAll({ where: { role: 'agriculteur' } });
@@ -22,7 +23,7 @@ export const createActualite = async (req, res) => {
       // Créer une notification pour chaque agriculteur
       const notifications = agriculteurs.map((agriculteur) => ({
         title: `Nouvelle opportunité : ${titre}`,
-        content: contenu,
+        content: description,
         user_id: agriculteur.id
       }));
 

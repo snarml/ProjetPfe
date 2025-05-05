@@ -3,6 +3,8 @@
 import bcrypt from 'bcrypt';
 import { sequelize } from '../Config/database.js';
 import User from '../models/user.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const createAdmin = async () => {
   try {
