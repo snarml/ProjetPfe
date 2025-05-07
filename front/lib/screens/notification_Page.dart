@@ -1,12 +1,18 @@
 import 'package:bitakati_app/models/newsModel.dart';
 import 'package:bitakati_app/services/notificationServices.dart';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:intl/intl.dart';
+=======
+import 'package:get/get.dart';
+import 'notification_detail_page.dart'; // Import de la page de détails
+>>>>>>> 4a7f114bdfbfc8cdc2c26b2583494ddba8ded985
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
 
   @override
+<<<<<<< HEAD
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
@@ -30,12 +36,23 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+=======
+  Widget build(BuildContext context) {
+    // Liste de notifications (à remplacer par vos données réelles)
+    final List<String> notifications = [
+      'تنبيه : تقلبات جوية اليوم في قابس',
+      'معلومة : كيفية رعاية الطماطم في الصيف',
+      'خبر : فتح سوق جديد للفلاحة في صفاقس',
+      'تحذير : مرض البياض الدقيقي في العنب منتشر هذه الفترة',
+    ];
+>>>>>>> 4a7f114bdfbfc8cdc2c26b2583494ddba8ded985
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('إشعارات ',
             style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
+<<<<<<< HEAD
         elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -76,6 +93,32 @@ class _NotificationPageState extends State<NotificationPage> {
                 padding: const EdgeInsets.all(8),
                 itemCount: actualites.length,
                 itemBuilder: (context, index) => _buildNotificationCard(actualites[index], theme),
+=======
+        backgroundColor: Colors.green[700],
+      ),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8.0),
+          itemCount: notifications.length,
+          itemBuilder: (context, index) {
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 2,
+              child: InkWell(
+                onTap: () {
+                  Get.to(() => NotificationDetailPage(message: notifications[index]));
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    notifications[index],
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+>>>>>>> 4a7f114bdfbfc8cdc2c26b2583494ddba8ded985
               ),
             );
           },
@@ -83,6 +126,7 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildLoadingIndicator() {
     return Center(
@@ -251,4 +295,6 @@ class _NotificationPageState extends State<NotificationPage> {
       return Icons.notifications;
     }
   }
+=======
+>>>>>>> 4a7f114bdfbfc8cdc2c26b2583494ddba8ded985
 }

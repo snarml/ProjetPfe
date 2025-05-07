@@ -3,7 +3,8 @@ import 'package:bitakati_app/screens/Home_page.dart';
 import 'package:bitakati_app/screens/Dashboard.dart';
 import 'package:bitakati_app/screens/chatbot_conversation.dart';
 import 'package:bitakati_app/screens/chatbot_welcome.dart';
-import 'package:bitakati_app/screens/farmin_Plus_Page.dart';
+import 'package:bitakati_app/screens/filaha/diseases_page.dart';
+import 'package:bitakati_app/screens/filaha/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/panier.dart';
@@ -19,9 +20,11 @@ import 'package:bitakati_app/screens/storePage.dart';
 import 'package:bitakati_app/widgets/chatbotmsg.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:get/get.dart';
-import 'package:bitakati_app/screens/pesticides_page.dart';
-import 'package:bitakati_app/screens/solutions_page.dart';
-import 'package:bitakati_app/screens/fertilizer_page.dart';
+import 'package:bitakati_app/screens/filaha/pesticides_page.dart';
+import 'package:bitakati_app/screens/filaha/solutions_page.dart';
+import 'package:bitakati_app/screens/storePage.dart';
+import 'package:bitakati_app/screens/filaha/fertilizer_page.dart';
+import 'package:bitakati_app/screens/filaha/fertilizer_detail_page.dart';
 
 
 class AppRoutes {
@@ -40,6 +43,13 @@ class AppRoutes {
     GetPage(name: homePage, page: () => HomePage()),
     GetPage(name: '/chatbot_msg', page: () => Chatbotmsg()),
     GetPage(name: '/chatbot_welcome', page: () => ChatbotWelcome()),
+
+    GetPage(name: '/chatbot_conversation', page: ()=> ChatbotConversation()),
+    GetPage(name: '/profile', page: () => ProfilePage()),
+    GetPage(name: '/store', page: () => StorePage()),
+    GetPage(name: '/farmingPlus', page: () => FarmingPlusPage()),
+    GetPage(name: '/services', page: () => Services()),
+
     GetPage(name: '/chatbot_conversation', page: () => ChatbotConversation()),
     GetPage(name: profile, page: () => ProfilePage()),
     GetPage(name: store, page: () => StorePage()),
@@ -51,7 +61,7 @@ class AppRoutes {
     GetPage(name: '/menu', page: () => NavBar()),
     GetPage(name: '/role', page: () => Role()),
     GetPage(name: '/editProfile', page: () => Editprofile()),
-    //GetPage(name: '/deseases', page: () => DeseasesPage()),
+    GetPage(name: '/diseases', page: () => DiseasesPage()),
     GetPage(
       name: '/verify',
       page: () {
