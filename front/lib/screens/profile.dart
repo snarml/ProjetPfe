@@ -4,10 +4,12 @@ import 'package:bitakati_app/screens/historyInteractionChatbot.dart';
 import 'package:bitakati_app/screens/languageSettings.dart';
 import 'package:bitakati_app/screens/purchaseTracking.dart';
 import 'package:bitakati_app/screens/salesTracking.dart';
+import 'package:bitakati_app/services/change_role_request.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -23,12 +25,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(360, 690));
     return Scaffold(
-    
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Get.offAll(()=> Navigationbar(selectedIndex : 0));
+            Get.offAll(() => Navigationbar(selectedIndex: 0));
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ),
@@ -97,10 +98,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 }),
               ],
             ),
+            // Nouvelle section pour les actions importantes
+            _buildSectionCard(
+              title: "إدارة الحساب",
+              items: [
+                _buildSettingItem("طلب تغيير الدور", onTap: () {
+                  // Ajouter la logique pour le changement de rôle
+                  _showChangeRoleDialog();
+                }),
+                _buildLogoutItem(),
+              ],
+            ),
           ],
         ),
       ),
-      //bottomNavigationBar: Navigationbar(),
     );
   }
 
@@ -110,8 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
         CircleAvatar(
           radius: 45.r,
           backgroundColor: Colors.white,
-          backgroundImage:
-              AssetImage('images/avatar.png'), // remplace par ton image
+          backgroundImage: AssetImage('images/avatar.png'),
         ),
         SizedBox(height: 10.h),
         Text(
@@ -204,7 +214,188 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      
+    );
+  }
+
+  Widget _buildLogoutItem() {
+    return InkWell(
+      onTap: () {
+        _showLogoutDialog();
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.arrow_back_ios, size: 16.sp, color: Colors.grey),
+            Expanded(
+              child: Text(
+                "تسجيل الخروج",
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  // Ajoutez cette méthode pour gérer la demande de changement de rôle
+Future<void> _handleRoleChangeRequest(String requestedRole) async {
+  try {
+    // Récupérer le token depuis SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      Get.snackbar(
+        'Erreur',
+        'Vous devez être connecté',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Afficher un indicateur de chargement
+    Get.dialog(
+      Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    // Appeler le service
+    final apiService = ApiChangeRoleService();
+    final result = await apiService.requestRoleChange(
+      token: token,
+      requestedRole: requestedRole,
+    );
+
+    // Fermer l'indicateur de chargement
+    Get.back();
+
+    // Afficher le résultat
+    Get.snackbar(
+      result['success'] ? 'Succès' : 'Erreur',
+      result['message'],
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: result['success'] ? Colors.green : Colors.red,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    Get.back();
+    Get.snackbar(
+      'Erreur',
+      'Une erreur inattendue est survenue',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+}
+
+  void _showChangeRoleDialog() {
+  String? selectedRole;
+  
+  Get.dialog(
+    AlertDialog(
+      title: Text("طلب تغيير الدور"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("الرجاء اختيار الدور الجديد:"),
+          SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            value: selectedRole,
+            items: [
+              // Remplacez ces valeurs par les rôles disponibles dans votre application
+              DropdownMenuItem(value: 'prestataire', child: Text("مقدم الخدمة")),
+              DropdownMenuItem(value: 'citoyen', child: Text("مواطن")),
+            ],
+            onChanged: (value) {
+              selectedRole = value;
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: Colors.grey, width: 1.w),
+
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: Colors.green, width: 1.w),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: Colors.grey, width: 1.w),
+              ),
+              labelText: 'الدور المطلوب',
+
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: Text("إلغاء"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          onPressed: () {
+            if (selectedRole == null) {
+              Get.snackbar(
+                "خطأ",
+                "الرجاء اختيار دور",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+              );
+              return;
+            }
+            Get.back();
+            _handleRoleChangeRequest(selectedRole!);
+          },
+          child: Text("تأكيد", style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    ),
+  );
+}
+
+  void _showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text("تسجيل الخروج"),
+        content: Text("هل أنت متأكد أنك تريد تسجيل الخروج؟"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text("إلغاء"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              // Logique pour déconnecter l'utilisateur
+              Get.back();
+              // Exemple de redirection vers l'écran de connexion
+              // Get.offAll(() => LoginScreen());
+              Get.snackbar(
+                "تم تسجيل الخروج",
+                "لقد تم تسجيل خروجك بنجاح",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+              );
+            },
+            child: Text("تسجيل الخروج", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 }

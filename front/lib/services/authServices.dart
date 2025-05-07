@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // L'URL de ton serveur backend
-  static const String baseUrl = 'http://192.168.1.18:4000';
+  static const String baseUrl = 'http://172.16.232.63:4000';
 
   // Fonction de Sign Up
   Future<Map<String, dynamic>> signUp(BuildContext context, String fullName,

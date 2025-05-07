@@ -8,7 +8,7 @@ export const requestRoleChange = async (req, res) => {
   // Récupération du token depuis les headers
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Accès refusé. Aucun token fourni.' });
+    return res.status(401).json({ message: 'تم الرفض. لم يتم توفير الرمز.' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -24,7 +24,7 @@ export const requestRoleChange = async (req, res) => {
       requested_role,
     });
 
-    res.status(201).json({ message: 'Demande envoyée avec succès.', request });
+    res.status(201).json({ message: 'تم إرسال الطلب بنجاح.', request });
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ message: 'Token invalide.' });

@@ -20,8 +20,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(),
-      drawer: const NavBar(),
-      
+      drawer: Drawer(
+        child: NavBar(),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

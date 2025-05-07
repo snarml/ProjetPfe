@@ -175,6 +175,16 @@ class _VerificationCodeState extends State<VerificationCode> {
                                                 BorderRadius.circular(10),
                                             borderSide: const BorderSide(
                                                 color: Colors.green)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                                color: Colors.green)),
+                                        enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                                color: Colors.green)),
                                       ),
                                       inputFormatters: [
                                         FilteringTextInputFormatter.digitsOnly

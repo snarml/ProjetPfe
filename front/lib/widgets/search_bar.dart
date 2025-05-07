@@ -1,46 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Searchbar extends StatelessWidget {
-  
+class Searchbar extends StatefulWidget {
   final ValueChanged<String>? onChanged;
-  const Searchbar({super.key, this.onChanged});
+  final VoidCallback? onFilterPressed; // Callback pour l'icône de filtrage
+  const Searchbar({super.key, this.onChanged, this.onFilterPressed});
+
+  @override
+  State<Searchbar> createState() => _SearchbarState();
+}
+
+class _SearchbarState extends State<Searchbar> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-  
-
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 3),),
-        ],
-      ),
-      child: TextField(
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: '...ابحث عن منتج',
-          hintStyle: GoogleFonts.cairo(),
-          filled: true,
-          fillColor: Colors.white,
-          suffixIcon: const Icon(Icons.search, color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.green)),
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+    return Center(
+      child: Container(
+        height: 45, // Hauteur ajustée
+        width: MediaQuery.of(context).size.width * 0.9, // Largeur ajustée (90% de l'écran)
+        decoration: BoxDecoration(
+          color: Colors.white, // Fond blanc
+          borderRadius: BorderRadius.circular(20), // Coins arrondis
+          border: Border.all(color: Colors.green, width: 2), // Bordure verte
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05), // Ombre douce
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        textAlign: TextAlign.right,
-        style: GoogleFonts.cairo(),
+        child: Row(
+          children: [
+            // Icône de recherche à droite
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Icon(Icons.search, color: Colors.green, size: 24),
+            ),
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onChanged: widget.onChanged,
+                decoration: InputDecoration(
+                  hintText: 'ابحث هنا...',
+                  hintStyle: GoogleFonts.cairo(color: Colors.grey),
+                  border: InputBorder.none, // Suppression des bordures internes
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                textAlign: TextAlign.right,
+                style: GoogleFonts.cairo(color: Colors.black),
+              ),
+            ),
+            // Icône de filtrage à gauche
+            IconButton(
+              icon: const Icon(Icons.filter_list, color: Colors.green),
+              onPressed: widget.onFilterPressed, // Action pour le filtrage
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -10,6 +10,7 @@ import { initAssociations } from './models/initAssociations.js';
 import actualiteRoutes from './routes/newsRoutes.js'; // Importation des routes d'actualités
 import roleChangeRequestRoutes from './routes/roleChangeRequestRoutes.js'; // Importation des routes de demande de changement de rôle
 import cors from 'cors'; // Importation de CORS pour gérer les requêtes cross-origin
+import gererProduitsRoutes from './routes/gérerProduitsRoutes.js'; // Importation des routes de gestion des produits
 
 dotenv.config({path: "./.env"}); // Chargement des variables d'environnement
 const app = express();
@@ -39,13 +40,16 @@ app.use('/api', profileRoutes);
 // Utilisation des routes pour les actualités
 app.use('/api', actualiteRoutes); 
 // Utilisation des routes pour les demandes de changement de rôle
-app.use('/api', roleChangeRequestRoutes); // Assurez-vous que le fichier de routes est correctement importé
+app.use('/api', roleChangeRequestRoutes); 
+
+// Utilisation des routes pour la gestion des produits
+app.use('/api', gererProduitsRoutes);
 
 // Initialisation des associations entre les modèles
 initAssociations(); 
 
 // Démarrage du serveur
 const PORT = 4000;
-app.listen(PORT,'192.168.1.18' ,() => {
+app.listen(PORT,'0.0.0.0' ,() => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
