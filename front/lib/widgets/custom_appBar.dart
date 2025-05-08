@@ -3,7 +3,7 @@
 import 'package:bitakati_app/screens/CartPage.dart';
 import 'package:bitakati_app/screens/messageSearchScreen.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
-import 'package:bitakati_app/screens/profile.dart';
+import 'package:bitakati_app/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -116,3 +116,5 @@ class _CustomAppbarState extends State<CustomAppbar> {
     );
   }
 }
+
+

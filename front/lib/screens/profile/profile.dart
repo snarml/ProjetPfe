@@ -1,9 +1,10 @@
-import 'package:bitakati_app/screens/EditProfile.dart';
-import 'package:bitakati_app/screens/favoriteLists.dart';
-import 'package:bitakati_app/screens/historyInteractionChatbot.dart';
-import 'package:bitakati_app/screens/languageSettings.dart';
+import 'package:bitakati_app/screens/profile/EditProfile.dart';
+import 'package:bitakati_app/screens/profile/favoriteLists.dart';
+import 'package:bitakati_app/screens/profile/historyInteractionChatbot.dart';
+import 'package:bitakati_app/screens/profile/languageSettings.dart';
 import 'package:bitakati_app/screens/purchaseTracking.dart';
 import 'package:bitakati_app/screens/salesTracking.dart';
+import 'package:bitakati_app/screens/prestataire/Service_Dashboard_Page.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,6 +85,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildSettingItem("متابعة عمليات الشراء", onTap: () {
                   Get.to(() => PurchasesTracking());
                 }),
+                _buildSettingItem("متابعة الخدمات ", onTap: () {
+                  Get.to(() => ServiceDashboardPage());
+}),
               ],
             ),
             _buildSectionCard(

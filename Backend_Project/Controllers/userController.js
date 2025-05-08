@@ -203,7 +203,6 @@ export const login = async (req, res) => {
 
     const payload = { id: user.id, num_tel: user.num_tel , role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-
     res.status(200).json({
       message: 'تم الاتصال بنجاح',
       token,
@@ -222,6 +221,8 @@ export const login = async (req, res) => {
     res.status(500).json({ error: 'خطأ في الخادم' });
   }
 };
+
+
 
 
 // 🔹 Récupérer un utilisateur par ID

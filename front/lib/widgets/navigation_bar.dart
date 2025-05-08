@@ -1,8 +1,8 @@
 import 'package:bitakati_app/controllers/NavigationController.dart';
 import 'package:bitakati_app/screens/Home_page.dart';
 import 'package:bitakati_app/screens/filaha/farmin_Plus_Page.dart';
-import 'package:bitakati_app/screens/profile.dart';
-import 'package:bitakati_app/screens/services.dart';
+import 'package:bitakati_app/screens/profile/profile.dart';
+import 'package:bitakati_app/screens/prestataire/services.dart';
 import 'package:bitakati_app/screens/storePage.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
