@@ -44,7 +44,9 @@ class _SigninScreenState extends State<SignInScreen> {
       } catch (e) {
         Get.snackbar('Erreur', e.toString(), backgroundColor: Colors.red);
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

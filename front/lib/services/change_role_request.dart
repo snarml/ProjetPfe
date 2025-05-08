@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiChangeRoleService {
-  static const String _baseUrl = 'http://172.16.232.63:4000'; // Remplacez par votre URL réelle
+  static const String _baseUrl = 'http://192.168.1.18:4000'; // Remplacez par votre URL réelle
 
   // Fonction pour envoyer une demande de changement de rôle
   Future<Map<String, dynamic>> requestRoleChange({

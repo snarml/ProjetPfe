@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class UserManagementServices {
-  static const String baseUrl = 'http://172.16.232.63:4000';
+  static const String baseUrl = 'http://192.168.1.18:4000';
 
   Future<Map<String, dynamic>> editProfile(
     String? fullName,
