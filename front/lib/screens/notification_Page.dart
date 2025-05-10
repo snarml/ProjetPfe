@@ -1,3 +1,4 @@
+
 import 'package:bitakati_app/models/newsModel.dart';
 import 'package:bitakati_app/services/notificationServices.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +159,7 @@ class _NotificationPageState extends State<NotificationPage> {
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           // Action lorsqu'on clique sur une notification
-          Get.to(() => NotificationDetailPage(message: actu.description));
+          Get.to(() => NotificationDetailPage());
         },
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -242,9 +243,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   IconData _getNotificationIcon(String title) {
-    if (title.contains('مطر') || title.contains('طقس')) {
-      return Icons.cloud;
-    } else if (title.contains('سقي') || title.contains('ري')) {
+     if (title.contains('سقي') || title.contains('ري')) {
       return Icons.water_drop;
     } else if (title.contains('محصول') || title.contains('حصاد')) {
       return Icons.eco;
@@ -255,3 +254,4 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 }
+

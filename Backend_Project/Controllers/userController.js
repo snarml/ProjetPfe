@@ -3,7 +3,6 @@ import twilio from 'twilio';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken';
-import {v4 as uuidv4} from 'uuid'; // Importer uuid pour générer des identifiants uniques
 // Charger les variables d'environnement
 dotenv.config({ path: './.env' });
 
@@ -203,7 +202,6 @@ export const login = async (req, res) => {
 
     const payload = { id: user.id, num_tel: user.num_tel , role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-
     res.status(200).json({
       message: 'تم الاتصال بنجاح',
       token,
@@ -222,6 +220,8 @@ export const login = async (req, res) => {
     res.status(500).json({ error: 'خطأ في الخادم' });
   }
 };
+
+
 
 
 // 🔹 Récupérer un utilisateur par ID

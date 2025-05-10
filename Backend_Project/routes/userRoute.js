@@ -1,5 +1,5 @@
 import express from 'express';
-import { addUser, getUser, verifyOTP, login, forgetPassword, listUsers, deleteAccount } from '../Controllers/userController.js';
+import { addUser, getUser, verifyOTP, login, forgetPassword, listUsers ,deleteAccount } from '../Controllers/userController.js';
 import verifyToken from '../middlewares/authMiddleware.js';
 import { authAdmin } from '../middlewares/authAdmin.js';
 

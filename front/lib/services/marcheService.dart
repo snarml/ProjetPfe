@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class MarcheService {
   // L'URL de ton serveur backend
-  static const String baseUrl = 'http://172.16.53.58:4000';
+  static const String baseUrl = 'http://192.168.1.18:4000';
   Future<Map<String, dynamic>> addProduct(
     String name,
     String description,

@@ -47,6 +47,7 @@ app.*.symbols
 /android/app/release
 
 # FRONT
+/build/
 /front/build/
 front/.dart_tool/
 front/.flutter-plugins
@@ -57,3 +58,4 @@ front/.flutter-plugins
 
 # Uploads
 /Backend_Project/uploads/
+

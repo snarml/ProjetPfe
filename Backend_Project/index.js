@@ -50,6 +50,9 @@ initAssociations();
 
 // Démarrage du serveur
 const PORT = 4000;
+
 app.listen(PORT,'0.0.0.0' ,() => {
   console.log(`Serveur démarré sur le port ${PORT}`);
+
 });
+

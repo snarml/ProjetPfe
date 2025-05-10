@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class FertilizerDetailPage extends StatelessWidget {
-  final Map<String, String> fertilizerData;
+class DiseaseDetailPage extends StatelessWidget {
+  final Map<String, String> diseaseData;
 
-  const FertilizerDetailPage({super.key, required this.fertilizerData});
+  const DiseaseDetailPage({super.key, required this.diseaseData});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class FertilizerDetailPage extends StatelessWidget {
             floating: false,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                fertilizerData['name']!,
+                diseaseData['name']!,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -27,13 +27,13 @@ class FertilizerDetailPage extends StatelessWidget {
               ),
               centerTitle: true,
               background: Hero(
-                tag: fertilizerData['name']!,
+                tag: diseaseData['name']!,
                 child: Image.asset(
-                  fertilizerData['image']!,
+                  diseaseData['image']!,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      color: Color(int.parse(fertilizerData['color']!)),
+                      color: Color(int.parse(diseaseData['color']!)),
                       child: const Center(
                         child: Icon(
                           Icons.help_outline,
@@ -46,7 +46,7 @@ class FertilizerDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            backgroundColor: Color(int.parse(fertilizerData['color']!)),
+            backgroundColor: Color(int.parse(diseaseData['color']!)),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
                 bottom: Radius.circular(20),
@@ -72,59 +72,58 @@ class FertilizerDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Description Section
-                  _buildSectionTitle('وصف السماد'),
+                  _buildSectionTitle('وصف المرض'),
                   const SizedBox(height: 8),
-                  _buildSectionContent(fertilizerData['description']!),
+                  _buildSectionContent(diseaseData['description']!),
                   const SizedBox(height: 20),
                   
-                  // Usage Section
-                  _buildSectionTitle('طريقة الاستخدام'),
+                  // Symptoms Section
+                  _buildSectionTitle('الأعراض'),
                   const SizedBox(height: 8),
-                  _buildSectionContent(fertilizerData['usage']!),
+                  _buildSectionContent(diseaseData['symptoms']!),
                   const SizedBox(height: 20),
                   
-                  // Precautions Section
-                  _buildSectionTitle('احتياطات الاستخدام'),
+                  // Treatment Section
+                  _buildSectionTitle('العلاج'),
                   const SizedBox(height: 8),
-                  _buildSectionContent(fertilizerData['precautions']!),
+                  _buildSectionContent(diseaseData['treatment']!),
+                  const SizedBox(height: 20),
+                  
+                  // Prevention Section
+                  _buildSectionTitle('الوقاية'),
+                  const SizedBox(height: 8),
+                  _buildSectionContent(diseaseData['prevention']!),
                   const SizedBox(height: 30),
                   
-                  // Benefits Section
-                  _buildSectionTitle('فوائد السماد'),
+                  // Severity Indicator
+                  _buildSectionTitle('مستوى الخطورة'),
                   const SizedBox(height: 8),
-                  _buildBenefitsList(),
+                  _buildSeverityIndicator(),
                   const SizedBox(height: 30),
                   
-                  // Application Tips
-                  _buildSectionTitle('نصائح للتطبيق'),
+                  // Affected Plants
+                  _buildSectionTitle('النباتات المعرضة'),
                   const SizedBox(height: 8),
-                  _buildTipsList(),
+                  _buildAffectedPlantsList(),
                   const SizedBox(height: 40),
                   
-                  // Action Button
+                  // Emergency Action Button
                   Center(
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       onPressed: () {
-                        // Implement action
+                        // Implement emergency action
                       },
+                      icon: const Icon(Icons.warning_amber),
+                      label: const Text('إجراءات طارئة'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(int.parse(fertilizerData['color']!)),
+                        backgroundColor: Colors.red[700],
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 16),
+                          horizontal: 30, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                         elevation: 5,
-                        shadowColor: Color(int.parse(fertilizerData['color']!))
-                            .withOpacity(0.4),
-                      ),
-                      child: const Text(
-                        'شراء الآن',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        shadowColor: Colors.red.withOpacity(0.4),
                       ),
                     ),
                   ),
@@ -136,13 +135,14 @@ class FertilizerDetailPage extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
       style: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.green,
+        color: Colors.red,
       ),
     );
   }
@@ -159,59 +159,46 @@ class FertilizerDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitsList() {
-    const benefits = [
-      'تحسين جودة التربة',
-      'زيادة إنتاجية المحاصيل',
-      'تعزيز نمو الجذور',
-      'تحسين مقاومة النبات للأمراض',
-      'تحسين جودة الثمار',
-    ];
-    
+  Widget _buildSeverityIndicator() {
     return Column(
-      children: benefits.map((benefit) => _buildListTile(benefit)).toList(),
+      children: [
+        LinearProgressIndicator(
+          value: 0.7, // Adjust based on disease severity
+          backgroundColor: Colors.grey[300],
+          color: Colors.red,
+          minHeight: 10,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('منخفض', style: TextStyle(color: Colors.grey)),
+            Text('متوسط', style: TextStyle(color: Colors.grey)),
+            Text('عالي', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ],
     );
   }
 
-  Widget _buildTipsList() {
-    const tips = [
-      'يفضل التسميد في الصباح الباكر أو المساء',
-      'تجنب التسميد أثناء فترات الحر الشديد',
-      'احرص على توزيع السماد بالتساوي',
-      'ري النبات بعد التسميد مباشرة',
+  Widget _buildAffectedPlantsList() {
+    const plants = [
+      'الطماطم',
+      'الباذنجان',
+      'الفلفل',
+      'الخيار',
+      'الكوسا',
     ];
     
-    return Column(
-      children: tips.map((tip) => _buildListTile(tip)).toList(),
-    );
-  }
-
-  Widget _buildListTile(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 4, left: 8),
-            child: Icon(
-              Icons.check_circle,
-              color: Color(int.parse(fertilizerData['color']!)),
-              size: 18,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[800],
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: plants.map((plant) => Chip(
+        label: Text(plant),
+        backgroundColor: Colors.red[50],
+        side: BorderSide(color: Colors.red[100]!),
+      )).toList(),
     );
   }
 }
