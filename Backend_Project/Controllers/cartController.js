@@ -2,34 +2,55 @@ import Cart from "../models/cartModel.js";
 import Produit from "../models/productModel.js";
 
 export const ajouterProduit = async (req, res) => {
-  const { user_id, produit_id, quantite } = req.body;
-
   try {
-    // Vérifier si le produit existe
-    const produit = await Produit.findByPk(produit_id);
-    if (!produit) return res.status(404).json({ message: 'Produit non trouvé' });
+    const { user_id, produit_id, quantite } = req.body;
+    console.log('Données reçues:', { user_id, produit_id, quantite });
 
-    // Vérifier si la quantité est disponible
+    // Vérifier l'authentification
+    if (!req.user || req.user.id !== parseInt(user_id)) {
+      return res.status(401).json({ message: 'Non autorisé' });
+    }
+
+    // Vérifier le produit
+    const produit = await Produit.findByPk(produit_id);
+    if (!produit) {
+      return res.status(404).json({ message: 'Produit non trouvé' });
+    }
+
+    // Vérifier le stock
     if (produit.quantite < quantite) {
       return res.status(400).json({ message: 'Quantité non disponible en stock' });
     }
 
-    // Vérifier si le produit est déjà dans le panier
+    // Ajouter ou mettre à jour le panier
     let cartItem = await Cart.findOne({ where: { user_id, produit_id } });
-
     if (cartItem) {
-      cartItem.quantite += quantite;
+      cartItem.quantite += parseInt(quantite);
       await cartItem.save();
-      return res.status(200).json({ message: 'Quantité mise à jour dans le panier', item: cartItem });
+    } else {
+      cartItem = await Cart.create({ 
+        user_id, 
+        produit_id, 
+        quantite: parseInt(quantite) 
+      });
     }
 
-    // Sinon, créer une nouvelle ligne dans le panier
-    cartItem = await Cart.create({ user_id, produit_id, quantite });
-    res.status(201).json({ message: 'Produit ajouté au panier', item: cartItem });
+    // Mettre à jour le stock
+    await produit.update({ quantite: produit.quantite - quantite });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Produit ajouté au panier',
+      item: cartItem
+    });
 
   } catch (error) {
-    console.error('Erreur dans ajouterProduit:', error);
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    console.error('Erreur ajouterProduit:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Erreur serveur',
+      error: error.message 
+    });
   }
 };
 

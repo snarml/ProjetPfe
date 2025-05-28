@@ -30,8 +30,7 @@ const Commande = sequelize.define('Commande', {
 }, {
   tableName: 'commandes',
   timestamps: false,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  
 });
 
 // Association avec le modèle User

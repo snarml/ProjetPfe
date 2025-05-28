@@ -140,10 +140,10 @@ class _FavoritesListState extends State<FavoritesList> {
             decoration: BoxDecoration(
               color: Colors.green[100],
               borderRadius: BorderRadius.circular(8.r),
-              image: DecorationImage(
-                image: AssetImage('images/${images[index]}.png'),
-                fit: BoxFit.cover,
-              ),
+              //image: DecorationImage(
+                //image: AssetImage('images/${images[index]}.png'),
+                //fit: BoxFit.cover,
+              //),
             ),
           ),
         ],

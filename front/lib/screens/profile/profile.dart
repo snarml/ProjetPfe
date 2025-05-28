@@ -4,8 +4,6 @@ import 'package:bitakati_app/screens/profile/historyInteractionChatbot.dart';
 import 'package:bitakati_app/screens/profile/languageSettings.dart';
 import 'package:bitakati_app/screens/purchaseTracking.dart';
 import 'package:bitakati_app/screens/salesTracking.dart';
-import 'package:bitakati_app/services/change_role_request.dart';
-
 import 'package:bitakati_app/screens/prestataire/Service_Dashboard_Page.dart';
 import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +20,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool notificationsEnabled = true;
+  String fullName = '';
+
+   @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      fullName = prefs.getString('full_name') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +94,10 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildSectionCard(
               title: "متابعة",
               items: [
-                _buildSettingItem("متابعة عمليات البيع", onTap: () {
+                _buildSettingItem("منتوجاتي", onTap: () {
                   Get.to(() => SalesTracking());
                 }),
-                _buildSettingItem("متابعة عمليات الشراء", onTap: () {
+                _buildSettingItem("مشترياتي", onTap: () {
                   Get.to(() => PurchasesTracking());
                 }),
                 _buildSettingItem("متابعة الخدمات ", onTap: () {
@@ -105,12 +118,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             // Nouvelle section pour les actions importantes
             _buildSectionCard(
-              title: "إدارة الحساب",
+              title: "تسجيل الخروج",
               items: [
-                _buildSettingItem("طلب تغيير الدور", onTap: () {
-                  // Ajouter la logique pour le changement de rôle
-                  _showChangeRoleDialog();
-                }),
                 _buildLogoutItem(),
               ],
             ),
@@ -130,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         SizedBox(height: 10.h),
         Text(
-          "مرحبا User!",
+        '! مرحبا ${fullName.isNotEmpty ? fullName : ''}',
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
@@ -176,6 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+  
 
   Widget _buildSettingItem(String title, {void Function()? onTap}) {
     return InkWell(
@@ -249,128 +259,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  // Ajoutez cette méthode pour gérer la demande de changement de rôle
-Future<void> _handleRoleChangeRequest(String requestedRole) async {
-  try {
-    // Récupérer le token depuis SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    
-    if (token == null) {
-      Get.snackbar(
-        'Erreur',
-        'Vous devez être connecté',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    // Afficher un indicateur de chargement
-    Get.dialog(
-      Center(child: CircularProgressIndicator()),
-      barrierDismissible: false,
-    );
-
-    // Appeler le service
-    final apiService = ApiChangeRoleService();
-    final result = await apiService.requestRoleChange(
-      token: token,
-      requestedRole: requestedRole,
-    );
-
-    // Fermer l'indicateur de chargement
-    Get.back();
-
-    // Afficher le résultat
-    Get.snackbar(
-      result['success'] ? 'Succès' : 'Erreur',
-      result['message'],
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: result['success'] ? Colors.green : Colors.red,
-      colorText: Colors.white,
-    );
-  } catch (e) {
-    Get.back();
-    Get.snackbar(
-      'Erreur',
-      'Une erreur inattendue est survenue',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-  }
-}
-
-  void _showChangeRoleDialog() {
-  String? selectedRole;
-  
-  Get.dialog(
-    AlertDialog(
-      title: Text("طلب تغيير الدور"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("الرجاء اختيار الدور الجديد:"),
-          SizedBox(height: 10),
-          DropdownButtonFormField<String>(
-            value: selectedRole,
-            items: [
-              // Remplacez ces valeurs par les rôles disponibles dans votre application
-              DropdownMenuItem(value: 'prestataire', child: Text("مقدم الخدمة")),
-              DropdownMenuItem(value: 'citoyen', child: Text("مواطن")),
-            ],
-            onChanged: (value) {
-              selectedRole = value;
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: Colors.grey, width: 1.w),
-
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: Colors.green, width: 1.w),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: Colors.grey, width: 1.w),
-              ),
-              labelText: 'الدور المطلوب',
-
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Get.back(),
-          child: Text("إلغاء"),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-          onPressed: () {
-            if (selectedRole == null) {
-              Get.snackbar(
-                "خطأ",
-                "الرجاء اختيار دور",
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-              return;
-            }
-            Get.back();
-            _handleRoleChangeRequest(selectedRole!);
-          },
-          child: Text("تأكيد", style: TextStyle(color: Colors.white)),
-        ),
-      ],
-    ),
-  );
-}
 
   void _showLogoutDialog() {
     Get.dialog(
@@ -384,23 +272,41 @@ Future<void> _handleRoleChangeRequest(String requestedRole) async {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              // Logique pour déconnecter l'utilisateur
-              Get.back();
-              // Exemple de redirection vers l'écran de connexion
-              // Get.offAll(() => LoginScreen());
-              Get.snackbar(
-                "تم تسجيل الخروج",
-                "لقد تم تسجيل خروجك بنجاح",
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.green,
-                colorText: Colors.white,
-              );
-            },
+            onPressed: _performLogout,
             child: Text("تسجيل الخروج", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _performLogout() async {
+    try {
+      Get.back();
+      
+      // Clear user data from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('full_name');
+      
+      // Navigate to login screen
+      // Get.offAll(() => LoginScreen());
+      
+      Get.snackbar(
+        "تم تسجيل الخروج",
+        "لقد تم تسجيل خروجك بنجاح",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "خطأ",
+        "حدث خطأ أثناء تسجيل الخروج",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }

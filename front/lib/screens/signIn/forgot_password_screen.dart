@@ -1,5 +1,4 @@
 import 'package:bitakati_app/screens/signIn/verification_code.dart';
-import 'package:bitakati_app/services/authServices.dart';
 import 'package:bitakati_app/widgets/custom_Input_filed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,7 +15,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-    final ApiService _authServices = ApiService();
     
       get token => null;
 

@@ -201,10 +201,10 @@ class _PesticidesPageState extends State<PesticidesPage> {
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: AssetImage(image),
-                        fit: BoxFit.contain,
-                      ),
+                      //image: DecorationImage(
+                        //image: AssetImage(image),
+                        //fit: BoxFit.contain,
+                      //),
                     ),
                   ),
                   Container(

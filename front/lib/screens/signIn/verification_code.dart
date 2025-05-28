@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:bitakati_app/screens/signIn/login_page.dart';
-import 'package:bitakati_app/screens/signIn/signin_screen.dart';
 import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

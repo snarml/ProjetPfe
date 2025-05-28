@@ -12,7 +12,14 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: 'mysql',
-    port: process.env.DB_PORT
+    port: process.env.DB_PORT,
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
+    define: {
+      charset: 'utf8mb4',// enregistrer les mots arabes
+      collate: 'utf8mb4_0900_ai_ci', // même collation que ta base(encodage)
+    },
   }
 );
 
@@ -21,7 +28,7 @@ const sequelize = new Sequelize(
 export const connectDatabase = async () => {
   try {
     await sequelize.authenticate();  // Essaie de se connecter à la base de données
-    console.log('Connexion à la base de données réussie ✅');
+    console.log('Connexion à la base de données réussie ');
   } catch (error) {
     console.error('Erreur de connexion à la base de données ❌:', error);
   }

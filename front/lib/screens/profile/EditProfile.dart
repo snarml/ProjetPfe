@@ -19,7 +19,8 @@ class _EditprofileState extends State<Editprofile> {
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -39,7 +40,30 @@ class _EditprofileState extends State<Editprofile> {
     });
   }
 
-  void _submitForm()async {
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontFamily: 'Tajawal',
+          ),
+          textAlign: TextAlign.right,
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(10.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+      ),
+    );
+  }
+
+  void _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
     bool isPasswordSectionFilled = _oldPasswordController.text.isNotEmpty ||
@@ -51,9 +75,8 @@ class _EditprofileState extends State<Editprofile> {
         _stateController.text.isEmpty &&
         _cityController.text.isEmpty &&
         !isPasswordSectionFilled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء تعديل على الأقل حقل واحد')),
-      );
+      _showSuccess('الرجاء تعديل على الأقل حقل واحد');
+
       return;
     }
 
@@ -76,7 +99,8 @@ class _EditprofileState extends State<Editprofile> {
 
     setState(() => _isLoading = true);
 
-    UserManagementServices().editProfile(
+    UserManagementServices()
+        .editProfile(
       _nameController.text,
       _phoneController.text,
       _stateController.text,
@@ -84,38 +108,54 @@ class _EditprofileState extends State<Editprofile> {
       isPasswordSectionFilled ? _oldPasswordController.text : null,
       isPasswordSectionFilled ? _newPasswordController.text : null,
       isPasswordSectionFilled ? _confirmPasswordController.text : null,
-    ).then((response) async {
+    )
+        .then((response) async {
       setState(() => _isLoading = false);
       if (response['success']) {
         // 🔐 Mettre à jour les données dans SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('full_name', _nameController.text);
-      prefs.setString('num_tel', _phoneController.text);
-      prefs.setString('pays', _stateController.text);
-      prefs.setString('ville', _cityController.text);
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('full_name', _nameController.text);
+        prefs.setString('num_tel', _phoneController.text);
+        prefs.setString('pays', _stateController.text);
+        prefs.setString('ville', _cityController.text);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
-        );
-        Navigator.pushReplacement(context, 
+        _showSuccess('تم حفظ التغييرات بنجاح');
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(builder: (context) => const Editprofile()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'فشل التحديث')),
-        );
+        _showError(response['message'] ?? 'فشل التحديث');
+        
       }
     }).catchError((error) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ: $error')),
-      );
+       _showError('حدث خطأ: $error');
     });
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontFamily: 'Tajawal',
+        ),
+        textAlign: TextAlign.right,
+      ),
+      backgroundColor: Colors.red,
+      duration: const Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.all(10.w),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+    ),
+  );
+}
 
   @override
   void dispose() {
@@ -165,7 +205,8 @@ class _EditprofileState extends State<Editprofile> {
                   height: 120.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.green.shade300, width: 3.w),
+                    border:
+                        Border.all(color: Colors.green.shade300, width: 3.w),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
@@ -184,10 +225,14 @@ class _EditprofileState extends State<Editprofile> {
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2)),
                     ],
                   ),
-                  child: Icon(Icons.camera_alt_rounded, size: 22.sp, color: Colors.green.shade700),
+                  child: Icon(Icons.camera_alt_rounded,
+                      size: 22.sp, color: Colors.green.shade700),
                 ),
               ],
             ),
@@ -212,13 +257,44 @@ class _EditprofileState extends State<Editprofile> {
                   ),
                   child: Column(
                     children: [
-                      CustomInputField(icon: Icons.person, hint: 'الاسم الكامل', borderColor: Colors.green, controller: _nameController),
-                      CustomInputField(icon: Icons.phone, hint: 'رقم الهاتف', borderColor: Colors.green, controller: _phoneController),
-                      CustomInputField(icon: Icons.map, hint: 'الولاية', borderColor: Colors.green, controller: _stateController),
-                      CustomInputField(icon: Icons.location_city, hint: 'المدينة', borderColor: Colors.green, controller: _cityController),
-                      CustomInputField(icon: Icons.lock, hint: 'كلمة المرور القديمة', controller: _oldPasswordController, isPassword: true, borderColor: Colors.green),
-                      CustomInputField(icon: Icons.lock, hint: 'كلمة المرور الجديدة', controller: _newPasswordController, isPassword: true, borderColor: Colors.green),
-                      CustomInputField(icon: Icons.lock, hint: 'تأكيد كلمة المرور', controller: _confirmPasswordController, isPassword: true, borderColor: Colors.green),
+                      CustomInputField(
+                          icon: Icons.person,
+                          hint: 'الاسم الكامل',
+                          borderColor: Colors.green,
+                          controller: _nameController),
+                      CustomInputField(
+                          icon: Icons.phone,
+                          hint: 'رقم الهاتف',
+                          borderColor: Colors.green,
+                          controller: _phoneController),
+                      CustomInputField(
+                          icon: Icons.map,
+                          hint: 'الولاية',
+                          borderColor: Colors.green,
+                          controller: _stateController),
+                      CustomInputField(
+                          icon: Icons.location_city,
+                          hint: 'المدينة',
+                          borderColor: Colors.green,
+                          controller: _cityController),
+                      CustomInputField(
+                          icon: Icons.lock,
+                          hint: 'كلمة المرور القديمة',
+                          controller: _oldPasswordController,
+                          isPassword: true,
+                          borderColor: Colors.green),
+                      CustomInputField(
+                          icon: Icons.lock,
+                          hint: 'كلمة المرور الجديدة',
+                          controller: _newPasswordController,
+                          isPassword: true,
+                          borderColor: Colors.green),
+                      CustomInputField(
+                          icon: Icons.lock,
+                          hint: 'تأكيد كلمة المرور',
+                          controller: _confirmPasswordController,
+                          isPassword: true,
+                          borderColor: Colors.green),
                       SizedBox(height: 30.h),
                       Container(
                         width: double.infinity,
@@ -231,7 +307,10 @@ class _EditprofileState extends State<Editprofile> {
                             end: Alignment.centerRight,
                           ),
                           boxShadow: [
-                            BoxShadow(color: Colors.green.shade200, blurRadius: 10, offset: Offset(0, 4)),
+                            BoxShadow(
+                                color: Colors.green.shade200,
+                                blurRadius: 10,
+                                offset: Offset(0, 4)),
                           ],
                         ),
                         child: ElevatedButton(
@@ -239,11 +318,16 @@ class _EditprofileState extends State<Editprofile> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.r)),
                           ),
                           child: _isLoading
                               ? CircularProgressIndicator(color: Colors.white)
-                              : Text('حفظ التغييرات', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                              : Text('حفظ التغييرات',
+                                  style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white)),
                         ),
                       ),
                     ],

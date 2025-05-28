@@ -3,7 +3,7 @@ import 'package:bitakati_app/models/newsModel.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationService {
-  static const String baseUrl = 'http://192.168.1.18:4000/api'; // adapte cette URL
+  static const String baseUrl = 'http://10.0.2.2:4000/api'; // adapte cette URL
 
   Future<List<News>> getNotifications() async {
     final response = await http.get(Uri.parse('$baseUrl/admin/actualites'));
