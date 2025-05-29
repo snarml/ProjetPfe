@@ -29,3 +29,4 @@ export const connectDatabase = async () => {
 
 // Exportation de sequelize pour l'utiliser dans d'autres fichiers comme models
 export { sequelize };
+export default sequelize; 

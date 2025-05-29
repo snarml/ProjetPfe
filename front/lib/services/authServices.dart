@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 class ApiService {
   // L'URL de ton serveur backend
@@ -125,4 +127,30 @@ class ApiService {
   }
 
   
+}
+
+class AuthService {
+  static const String baseUrl = 'http://10.0.2.2:5000/api'; // Pour l'émulateur Android
+  static const storage = FlutterSecureStorage( );
+
+  // Stocker le token JWT
+  static Future<void> setToken(String token) async {
+    await storage.write(key: 'jwt_token', value: token);
+  }
+
+
+  // Récupérer le token JWT
+  static Future<String?> getToken() async {
+    return await storage.read(key: 'jwt_token');
+  }
+
+
+// Obtenir les en-têtes d'authentification
+  static Future<Map<String, String>> getAuthHeaders() async {
+    final token = await getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
 }

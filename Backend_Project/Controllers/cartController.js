@@ -8,7 +8,7 @@ export const ajouterProduit = async (req, res) => {
     // Vérifier si le produit existe
     const produit = await Produit.findByPk(produit_id);
     if (!produit) return res.status(404).json({ message: 'Produit non trouvé' });
-
+ 
     // Vérifier si la quantité est disponible
     if (produit.quantite < quantite) {
       return res.status(400).json({ message: 'Quantité non disponible en stock' });

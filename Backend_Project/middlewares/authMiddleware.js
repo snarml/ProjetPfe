@@ -56,3 +56,4 @@ export const verifyToken = (req, res, next) => {
   }
 };
 export default verifyToken; // Exportation de la fonction pour l'utiliser dans d'autres fichiers
+// ou

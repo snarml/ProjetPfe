@@ -5,7 +5,6 @@ import 'package:bitakati_app/screens/chatbot_conversation.dart';
 import 'package:bitakati_app/screens/chatbot_welcome.dart';
 import 'package:bitakati_app/screens/filaha/diseases_page.dart';
 import 'package:bitakati_app/screens/filaha/farmin_Plus_Page.dart';
-import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/notification_detail_page.dart';
 import 'package:bitakati_app/screens/panier.dart';
@@ -62,7 +61,6 @@ class AppRoutes {
       GetPage(name: '/panier', page: () => Panier()),
       //GetPage(name: '/notification', page: () => NotificationPage()),
       //GetPage(name: '/NotificationPage', page: () => NotificationDetailPage(message: '',)),
-      GetPage(name: '/messagePage', page: () => Messagepage()),
       GetPage(name: '/menu', page: () => NavBar()),
       GetPage(name: '/role', page: () => Role()),
       GetPage(name: '/editProfile', page: () => Editprofile()),
@@ -86,7 +84,7 @@ class AppRoutes {
         },
       ),
     ];
-}
 
+}
 
 

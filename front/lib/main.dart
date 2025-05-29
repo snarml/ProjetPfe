@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+ 
 
   final sharedPreferences = await SharedPreferences.getInstance();
   Get.put(sharedPreferences);
