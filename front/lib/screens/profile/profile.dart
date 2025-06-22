@@ -9,6 +9,7 @@ import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,17 +20,31 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool notificationsEnabled = true;
+  String fullName = '';
+
+   @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      fullName = prefs.getString('full_name') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(360, 690));
     return Scaffold(
-    
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Get.offAll(()=> Navigationbar(selectedIndex : 0));
+            Get.offAll(() => Navigationbar(selectedIndex: 0));
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ),
@@ -79,10 +94,10 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildSectionCard(
               title: "متابعة",
               items: [
-                _buildSettingItem("متابعة عمليات البيع", onTap: () {
+                _buildSettingItem("منتوجاتي", onTap: () {
                   Get.to(() => SalesTracking());
                 }),
-                _buildSettingItem("متابعة عمليات الشراء", onTap: () {
+                _buildSettingItem("مشترياتي", onTap: () {
                   Get.to(() => PurchasesTracking());
                 }),
                 _buildSettingItem("متابعة الخدمات ", onTap: () {
@@ -101,10 +116,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 }),
               ],
             ),
+            // Nouvelle section pour les actions importantes
+            _buildSectionCard(
+              title: "تسجيل الخروج",
+              items: [
+                _buildLogoutItem(),
+              ],
+            ),
           ],
         ),
       ),
-      //bottomNavigationBar: Navigationbar(),
     );
   }
 
@@ -114,12 +135,11 @@ class _ProfilePageState extends State<ProfilePage> {
         CircleAvatar(
           radius: 45.r,
           backgroundColor: Colors.white,
-          backgroundImage:
-              AssetImage('images/avatar.png'), // remplace par ton image
+          backgroundImage: AssetImage('images/avatar.png'),
         ),
         SizedBox(height: 10.h),
         Text(
-          "مرحبا User!",
+        '! مرحبا ${fullName.isNotEmpty ? fullName : ''}',
           style: TextStyle(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
@@ -165,6 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+  
 
   Widget _buildSettingItem(String title, {void Function()? onTap}) {
     return InkWell(
@@ -208,7 +229,84 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      
     );
+  }
+
+  Widget _buildLogoutItem() {
+    return InkWell(
+      onTap: () {
+        _showLogoutDialog();
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.arrow_back_ios, size: 16.sp, color: Colors.grey),
+            Expanded(
+              child: Text(
+                "تسجيل الخروج",
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text("تسجيل الخروج"),
+        content: Text("هل أنت متأكد أنك تريد تسجيل الخروج؟"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text("إلغاء"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: _performLogout,
+            child: Text("تسجيل الخروج", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performLogout() async {
+    try {
+      Get.back();
+      
+      // Clear user data from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('full_name');
+      
+      // Navigate to login screen
+      // Get.offAll(() => LoginScreen());
+      
+      Get.snackbar(
+        "تم تسجيل الخروج",
+        "لقد تم تسجيل خروجك بنجاح",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "خطأ",
+        "حدث خطأ أثناء تسجيل الخروج",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }

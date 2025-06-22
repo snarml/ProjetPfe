@@ -1,3 +1,4 @@
+import 'package:bitakati_app/screens/filaha/diseases_Detail_page.dart';
 import 'package:bitakati_app/screens/profile/EditProfile.dart';
 import 'package:bitakati_app/screens/Home_page.dart';
 import 'package:bitakati_app/screens/Dashboard.dart';
@@ -7,6 +8,7 @@ import 'package:bitakati_app/screens/filaha/diseases_page.dart';
 import 'package:bitakati_app/screens/filaha/farmin_Plus_Page.dart';
 import 'package:bitakati_app/screens/notification_Page.dart';
 import 'package:bitakati_app/screens/notification_detail_page.dart';
+import 'package:bitakati_app/screens/messagePage.dart';
 import 'package:bitakati_app/screens/panier.dart';
 import 'package:bitakati_app/screens/profile/profile.dart';
 import 'package:bitakati_app/screens/role.dart';
@@ -22,13 +24,7 @@ import 'package:bitakati_app/widgets/navigation_bar.dart';
 import 'package:get/get.dart';
 import 'package:bitakati_app/screens/filaha/pesticides_page.dart';
 import 'package:bitakati_app/screens/filaha/solutions_page.dart';
-import 'package:bitakati_app/screens/storePage.dart';
 import 'package:bitakati_app/screens/filaha/fertilizer_page.dart';
-import 'package:bitakati_app/screens/filaha/fertilizer_detail_page.dart';
-import 'package:bitakati_app/screens/filaha/diseases_detail_page.dart';
-import 'package:bitakati_app/screens/filaha/diseases_page.dart';
-import 'package:bitakati_app/screens/filaha/solutions_detail_page.dart';
-import 'package:bitakati_app/screens/filaha/solutions_page.dart';
 
 class AppRoutes {
   static const String homePage = '/home_page';

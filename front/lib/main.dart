@@ -1,3 +1,4 @@
+import 'package:bitakati_app/controllers/cartController.dart';
 import 'package:bitakati_app/routes/app_routes.dart';
 import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
@@ -5,14 +6,13 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
  
-
   final sharedPreferences = await SharedPreferences.getInstance();
   Get.put(sharedPreferences);
   Get.put(ApiService());
+  Get.put(CartController(), permanent: true);
   runApp(MyApp());
 }
 
@@ -29,8 +29,6 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           initialRoute: '/welcome',
           getPages: AppRoutes.routes,
-
-          
         );
       },
     );
@@ -44,7 +42,8 @@ class SharedLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality( // Forcer RTL
+    return Directionality(
+      // Forcer RTL
       textDirection: TextDirection.rtl,
       child: Scaffold(
         body: SafeArea(

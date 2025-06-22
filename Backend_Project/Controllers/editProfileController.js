@@ -37,14 +37,14 @@ export const editProfile = async (req, res) => {
       if (!isMatch) {
         return res.status(400).json({ 
           success: false,
-          message: "L'ancien mot de passe est incorrect"
+          message: "كلمة المرور القديمة غير صحيحة"
         });
       }
 
       if (new_password !== confirm_password) {
         return res.status(400).json({
           success: false,
-          message: "Les nouveaux mots de passe ne correspondent pas"
+          message: "كلمات المرور الجديدة لا تتطابق"
         });
       }
 
@@ -55,7 +55,7 @@ export const editProfile = async (req, res) => {
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Aucune modification apportée au profil"
+        message: "لم يتم إجراء أي تغييرات على الملف الشخصي"
       });
     }
 
@@ -68,7 +68,7 @@ export const editProfile = async (req, res) => {
 
     res.status(200).json({ 
       success: true,
-      message: "Profil mis à jour avec succès",
+      message: "تم تحديث الملف الشخصي بنجاح",
       user: userData
     });
 
@@ -79,14 +79,14 @@ export const editProfile = async (req, res) => {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({ 
         success: false,
-        message: "Ce numéro de téléphone est déjà utilisé",
+        message: "رقم الهاتف هذا قيد الاستخدام بالفعل",
         field: error.errors[0].path
       });
     }
     
     res.status(500).json({ 
       success: false,
-      message: "Erreur serveur lors de la mise à jour du profil"
+      message: "خطأ في الخادم أثناء تحديث الملف الشخصي"
     });
   }
 };

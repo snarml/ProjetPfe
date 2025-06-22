@@ -8,7 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   // L'URL de ton serveur backend
-  static const String baseUrl = 'http://127.0.0.1:4000';
+
+  static const String baseUrl = 'http://10.0.2.2:4000';
+
+  
 
   // Fonction de Sign Up
   Future<Map<String, dynamic>> signUp(BuildContext context, String fullName,
@@ -78,6 +81,9 @@ class ApiService {
 // Fonction de Sign In
   Future<Map<String, dynamic>> signIn(String numTel, String password) async {
     final url = Uri.parse('$baseUrl/api/login');
+    print("👉 Début de la méthode signIn");
+  print("🔗 URL: $url");
+  print("📲 Données envoyées: num_tel=$numTel, password=$password");
     try {
       final response = await http.post(
         url,
@@ -87,6 +93,8 @@ class ApiService {
           'password': password,
         }),
       );
+      print("✅ Réponse reçue avec statusCode: ${response.statusCode}");
+    print("📩 Corps de la réponse: ${response.body}");
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
@@ -98,12 +106,16 @@ class ApiService {
          prefs.setString('ville', responseData['user']['ville']);
          prefs.setString('pays', responseData['user']['pays']);
          prefs.setString('role', responseData['user']['role']);
+        prefs.setInt('user_id', responseData['user']['id']);
+        print("💾 Données utilisateur enregistrées dans SharedPreferences");
       
         return responseData;
       } else {
+        print("❌ Erreur côté serveur: ${responseData['error']}");
         throw Exception(responseData['error'] ?? 'حدث خطأ أثناء الاتصال');
       }
     } catch (e) {
+      print("🔥 Exception levée: $e");
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }

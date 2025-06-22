@@ -21,6 +21,10 @@ dotenv.config({ path: './.env' });
 const app = express();
 app.use(express.json());
 app.use(cors());
+// Pour lire les données x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+// Middleware pour vérifier le token JWT sur toutes les routes
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connexion à la base de données
 connectDatabase();
@@ -49,5 +53,6 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`✅ Serveur démarré sur http://127.0.0.1:${PORT}`);
 });
+
 
 //app.listen(PORT, '192.168.1.20', () => {

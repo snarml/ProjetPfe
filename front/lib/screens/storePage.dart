@@ -1,3 +1,4 @@
+import 'package:bitakati_app/controllers/productController.dart';
 import 'package:bitakati_app/screens/CartPage.dart';
 import 'package:bitakati_app/screens/addProductPage.dart';
 import 'package:bitakati_app/widgets/ProductItem.dart';
@@ -8,6 +9,13 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/product_model.dart';
 
+enum SortOption {
+  recent,    // Plus récent
+  priceLow,  // Prix croissant
+  priceHigh, // Prix décroissant
+  name       // Ordre alphabétique
+}
+
 class StorePage extends StatefulWidget {
   const StorePage({super.key});
 
@@ -15,132 +23,33 @@ class StorePage extends StatefulWidget {
   State<StorePage> createState() => _StorePageState();
 }
 
-class _StorePageState extends State<StorePage> with SingleTickerProviderStateMixin {
+class _StorePageState extends State<StorePage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _currentTabIndex = 0;
   String selectedCategory = 'الكل';
   String searchQuery = '';
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
-
-  final List<Product> produits = [
-    Product(
-      id: '1',
-      nom: 'طماطم',
-      prix: '2.50 د.ت',
-      image: 'images/tomate.jpg',
-      category: 'خضروات',
-      checked: false,
-    ),
-    Product(
-      id: '2',
-      nom: 'ليمون',
-      prix: '1.80 د.ت',
-      image: 'images/lemon.jpeg',
-      category: 'خضروات',
-      checked: false,
-    ),
-    Product(
-      id: '3',
-      nom: 'سفنارية',
-      prix: '3.00 د.ت',
-      image: 'images/carotte.jpg',
-      category: 'خضروات',
-      checked: false,
-    ),
-    Product(
-      id: '4',
-      nom: 'تفاح',
-      prix: '4.00 د.ت',
-      image: 'images/apple.jpeg',
-      category: 'فواكه',
-      checked: false,
-    ),
-    Product(
-      id: '5',
-      nom: 'برتقال',
-      prix: '3.50 د.ت',
-      image: 'images/orange.jpeg',
-      category: 'فواكه',
-      checked: false,
-    ),
-    Product(
-      id: '6',
-      nom: 'موز',
-      prix: '2.80 د.ت',
-      image: 'images/banane.png',
-      category: 'فواكه',
-      checked: false,
-    ),
-    Product(
-      id: '7',
-      nom: 'قمح',
-      prix: '1.50 د.ت',
-      image: 'images/barley.jpeg',
-      category: 'حبوب',
-      checked: false,
-    ),
-    Product(
-      id: '8',
-      nom: 'شعير',
-      prix: '1.20 د.ت',
-      image: 'images/wheat.jpeg',
-      category: 'حبوب',
-      checked: false,
-    ),
-    Product(
-      id: '9',
-      nom: 'رز',
-      prix: '1.80 د.ت',
-      image: 'images/rice.jpeg',
-      category: 'حبوب',
-      checked: false,
-    ),
-    Product(
-      id: '10',
-      nom: 'أرض زراعية',
-      prix: '5000.00 د.ت',
-      image: 'images/land.jpeg',
-      category: 'أراضي',
-      checked: false,
-    ),
-    Product(
-      id: '11',
-      nom: 'أدوات زراعية',
-      prix: '150.00 د.ت',
-      image: 'images/tools.jpeg',
-      category: 'أدوات مستعملة',
-      checked: false,
-    ),
-    Product(
-      id: '12',
-      nom: 'معدات زراعية',
-      prix: '200.00 د.ت',
-      image: 'images/equipment.jpg',
-      category: 'أدوات مستعملة',
-      checked: false,
-    ),
-    Product(
-      id: '13',
-      nom: 'فواكه بحرية',
-      prix: '15.00 د.ت',
-      image: 'images/seafood.jpeg',
-      category: 'الصيد البحري',
-      checked: false,
-    ),
-    Product(
-      id: '14',
-      nom: 'أسماك',
-      prix: '10.00 د.ت',
-      image: 'images/fish.jpeg',
-      category: 'الصيد البحري',
-      checked: false,
-    ),
-  ];
+  final ProductController _productController = Get.put(ProductController());
+  SortOption currentSortOption = SortOption.recent;
+  RangeValues _priceRange = const RangeValues(0, 1000);
+  bool _availableOnly = false;
 
   final List<List<String>> marketCategories = [
-    ['الكل', 'الأدوية', 'مواد وأدوات زراعية', 'أدوات العناية والتنظيف', 'مواد جمع المحصول', 'أدوات تربية الماشية والأعلاف', 'أدوات ومعدات الصيد البحري'],
-    ['الكل', 'خضروات', 'فواكه', 'حبوب', 'أراضي', 'الصيد البحري'],
+    [
+      'الكل',
+      'أدوات مستعملة',
+      'أراضي',
+      'الأدوية',
+      'الأسمدة',
+      'مواد وأدوات زراعية',
+      'أدوات العناية والتنظيف',
+      'مواد جمع المحصول',
+      'أدوات تربية الماشية والأعلاف',
+      'أدوات ومعدات الصيد البحري'
+    ],
+    ['الكل', 'خضروات', 'فواكه', 'حبوب', 'الصيد البحري', 'الماشية'],
   ];
 
   @override
@@ -148,6 +57,75 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _loadProducts();
+  }
+
+  // Charger tous les produits au démarrage
+  Future<void> _loadProducts() async {
+    await _productController.loadProducts();
+    print('Produits chargés (allProducts): ${_productController.allProducts.length}');
+    for (var p in _productController.allProducts) {
+      print('Produit: id=${p.id}, nom=${p.nom}, categorie_id=${p.categoryId}, category=${p.category}');
+    }
+    setState(() {});
+  }
+
+  // Charger les produits d'une catégorie spécifique
+  Future<void> _loadProductsForCategory(String categoryName) async {
+    int? categoryId = _getCategoryIdByName(categoryName);
+    
+    if (categoryName == 'الكل') {
+      // Pour "Tous", on charge tous les produits mais on applique le filtre par type de marché
+      await _productController.loadProducts();
+    } else if (categoryId != null) {
+      // Pour une catégorie spécifique
+      await _productController.loadProductsByCategory(categoryId);
+    }
+    
+    setState(() {}); // Rafraîchir l'interface
+  }
+
+  int? _getCategoryIdByName(String categoryName) {
+    final categories = [
+      {'id': 1, 'nom': 'خضروات', 'type': 'produits'},
+      {'id': 2, 'nom': 'فواكه', 'type': 'produits'},
+      {'id': 3, 'nom': 'حبوب', 'type': 'produits'},
+      {'id': 4, 'nom': 'الصيد البحري', 'type': 'produits'},
+      {'id': 5, 'nom': 'الماشية', 'type': 'produits'},
+      {'id': 6, 'nom': 'أدوات مستعملة', 'type': 'materiels'},
+      {'id': 7, 'nom': 'أراضي', 'type': 'materiels'},
+      {'id': 8, 'nom': 'الأدوية', 'type': 'materiels'},
+      {'id': 9, 'nom': 'الأسمدة', 'type': 'materiels'},
+      {'id': 10, 'nom': 'مواد وأدوات زراعية', 'type': 'materiels'},
+      {'id': 11, 'nom': 'أدوات العناية والتنظيف', 'type': 'materiels'},
+      {'id': 12, 'nom': 'مواد جمع المحصول', 'type': 'materiels'},
+      {'id': 13, 'nom': 'أدوات تربية الماشية والأعلاف', 'type': 'materiels'},
+      {'id': 14, 'nom': 'أدوات ومعدات الصيد البحري', 'type': 'materiels'},
+    ];
+    final found =
+        categories.firstWhereOrNull((cat) => cat['nom'] == categoryName);
+    return found != null ? found['id'] as int : null;
+  }
+
+  String? _getCategoryNameById(int id) {
+    final categories = [
+      {'id': 1, 'nom': 'خضروات'},
+      {'id': 2, 'nom': 'فواكه'},
+      {'id': 3, 'nom': 'حبوب'},
+      {'id': 4, 'nom': 'الصيد البحري'},
+      {'id': 5, 'nom': 'الماشية'},
+      {'id': 6, 'nom': 'أدوات مستعملة'},
+      {'id': 7, 'nom': 'أراضي'},
+      {'id': 8, 'nom': 'الأدوية'},
+      {'id': 9, 'nom': 'الأسمدة'},
+      {'id': 10, 'nom': 'مواد وأدوات زراعية'},
+      {'id': 11, 'nom': 'أدوات العناية والتنظيف'},
+      {'id': 12, 'nom': 'مواد جمع المحصول'},
+      {'id': 13, 'nom': 'أدوات تربية الماشية والأعلاف'},
+      {'id': 14, 'nom': 'أدوات ومعدات الصيد البحري'},
+    ];
+    final found = categories.firstWhereOrNull((cat) => cat['id'] == id);
+    return found != null ? found['nom'] as String : null;
   }
 
   void _handleTabChange() {
@@ -155,11 +133,18 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
       setState(() {
         _currentTabIndex = _tabController.index;
         selectedCategory = 'الكل';
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+      });
+
+      _loadProducts(); // Recharger les produits quand on change d'onglet
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       });
     }
   }
@@ -173,19 +158,154 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  List<Product> get filteredProducts {
-    return produits.where((product) {
-      final matchesCategory = selectedCategory == 'الكل' || product.category == selectedCategory;
-      final matchesSearch = product.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          product.prix.contains(searchQuery);
-      final matchesMarketType =
-          _currentTabIndex == 0 ? _isSupplyProduct(product) : _isAgriculturalProduct(product);
-      return matchesCategory && matchesSearch && matchesMarketType;
-    }).toList();
-  }
+  // Correction principale ici - cette méthode filtre correctement les produits
+List<Product> get filteredProducts {
+    return _productController.allProducts.where((product) {
+      // 1. Filtre par type de marché (onglet)
+      final matchesMarketType = _currentTabIndex == 0
+          ? _isSupplyProduct(product)
+          : _isAgriculturalProduct(product);
 
-  bool _isSupplyProduct(Product product) => ['أدوات مستعملة', 'أراضي', 'الأدوية', 'مواد وأدوات زراعية', 'أدوات العناية والتنظيف', 'مواد جمع المحصول', 'أدوات تربية الماشية والأعلاف', 'أدوات ومعدات الصيد البحري'].contains(product.category);
-  bool _isAgriculturalProduct(Product product) => ['خضروات', 'فواكه', 'حبوب', 'الصيد البحري'].contains(product.category);
+      // 2. Filtre par catégorie
+      final matchesCategory = selectedCategory == 'الكل' ||
+          _getCategoryNameById(product.categoryId) == selectedCategory;
+
+      // 3. Filtre par recherche
+      final matchesSearch = searchQuery.isEmpty ||
+          product.nom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          product.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          _getCategoryNameById(product.categoryId)!.toLowerCase().contains(searchQuery.toLowerCase());
+
+      // 4. Filtre par prix
+      final matchesPrice = product.prix >= _priceRange.start && 
+                          product.prix <= _priceRange.end;
+
+      // 5. Filtre par disponibilité
+      final matchesAvailability = !_availableOnly || product.disponible;
+
+      return matchesMarketType && 
+             matchesCategory && 
+             matchesSearch && 
+             matchesPrice && 
+             matchesAvailability;
+    }).toList()..sort((a, b) {
+      // Tri des résultats
+      switch (currentSortOption) {
+        case SortOption.recent:
+          return b.id.compareTo(a.id);
+        case SortOption.priceLow:
+          return a.prix.compareTo(b.prix);
+        case SortOption.priceHigh:
+          return b.prix.compareTo(a.prix);
+        case SortOption.name:
+          return a.nom.compareTo(b.nom);
+      }
+    });
+  }
+  void _showFilterDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setStateDialog) => AlertDialog(
+        title: Text('فلترة المنتجات', style: GoogleFonts.cairo()),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Prix
+            Text('نطاق السعر', style: GoogleFonts.cairo()),
+            RangeSlider(
+              values: _priceRange,
+              min: 0,
+              max: 12000,
+              divisions: 20,
+              labels: RangeLabels(
+                '${_priceRange.start.round()} د.ت',
+                '${_priceRange.end.round()} د.ت',
+              ),
+              onChanged: (RangeValues values) {
+                setStateDialog(() => _priceRange = values);
+              },
+            ),
+            
+            // Disponibilité
+            CheckboxListTile(
+              title: Text('المنتجات المتوفرة فقط', style: GoogleFonts.cairo()),
+              value: _availableOnly,
+              onChanged: (bool? value) {
+                setStateDialog(() => _availableOnly = value ?? false);
+              },
+            ),
+
+            // Tri
+            DropdownButtonFormField<SortOption>(
+              value: currentSortOption,
+              items: [
+                DropdownMenuItem(
+                  value: SortOption.recent,
+                  child: Text('الأحدث', style: GoogleFonts.cairo()),
+                ),
+                DropdownMenuItem(
+                  value: SortOption.priceLow,
+                  child: Text('السعر: من الأقل إلى الأعلى', style: GoogleFonts.cairo()),
+                ),
+                DropdownMenuItem(
+                  value: SortOption.priceHigh,
+                  child: Text('السعر: من الأعلى إلى الأقل', style: GoogleFonts.cairo()),
+                ),
+                DropdownMenuItem(
+                  value: SortOption.name,
+                  child: Text('الترتيب الأبجدي', style: GoogleFonts.cairo()),
+                ),
+              ],
+              onChanged: (value) {
+                setStateDialog(() => currentSortOption = value ?? SortOption.recent);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('إلغاء', style: GoogleFonts.cairo(color: Colors.red)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {}); // Rafraîchir la liste
+              Navigator.pop(context);
+            },
+            child: Text('تطبيق', style: GoogleFonts.cairo()),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  bool _isSupplyProduct(Product product) => [
+        'أدوات مستعملة',
+        'أراضي',
+        'الأدوية',
+        'الأسمدة',
+        'مواد وأدوات زراعية',
+        'أدوات العناية والتنظيف',
+        'مواد جمع المحصول',
+        'أدوات تربية الماشية والأعلاف',
+        'أدوات ومعدات الصيد البحري'
+      ].contains(product.category);
+
+  bool _isAgriculturalProduct(Product product) => [
+        'خضروات',
+        'فواكه',
+        'حبوب',
+        'الصيد البحري',
+        'الماشية'
+      ].contains(product.category);
+
+  void _updateSearchQuery(String newQuery) {
+    setState(() {
+      searchQuery = newQuery;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +318,9 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
         ),
         title: Text('التسوق',
             style: GoogleFonts.cairo(
-                fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         centerTitle: true,
         backgroundColor: Colors.green[700],
         elevation: 0,
@@ -239,13 +361,14 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: AddProductButton(
-              onPressed: () => Get.to(() => const AddProductPage()),
+              onPressed: () => Get.to(() => AddProductPage()),
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Searchbar(
-              
+              onSearchChanged: _updateSearchQuery,
+              onFilterPressed: _showFilterDialog,
             ),
           ),
           SizedBox(
@@ -254,7 +377,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
               controller: _categoryScrollController,
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: (_currentTabIndex < marketCategories.length) ? marketCategories[_currentTabIndex].length: 0,
+              itemCount: marketCategories[_currentTabIndex].length,
               itemBuilder: (context, index) {
                 final category = marketCategories[_currentTabIndex][index];
                 final isSelected = category == selectedCategory;
@@ -278,6 +401,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
                     onSelected: (bool selected) {
                       setState(() {
                         selectedCategory = category;
+                        _loadProductsForCategory(category);
                       });
                     },
                   ),
@@ -289,7 +413,6 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(), // Prevent swiping between tabs
               children: [
                 _buildProductsView(),
                 _buildProductsView(),
@@ -302,39 +425,49 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
   }
 
   Widget _buildProductsView() {
-    return RefreshIndicator(
-      onRefresh: () async => setState(() {}),
-      child: filteredProducts.isEmpty
-          ? Center(
-              child: Text(
-                'لا توجد منتجات متاحة',
-                style: GoogleFonts.cairo(fontSize: 18),
+    return Obx(() {
+      final displayProducts = filteredProducts;
+      print('Affichage de ${displayProducts.length} produits');
+      
+      return RefreshIndicator(
+        onRefresh: _loadProducts,
+        child: displayProducts.isEmpty
+            ? ListView(
+                children: [
+                  SizedBox(height: 150),
+                  Center(
+                    child: Text(
+                      'لا توجد منتجات متاحة',
+                      style: GoogleFonts.cairo(fontSize: 18, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              )
+            : GridView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                ),
+                itemCount: displayProducts.length,
+                itemBuilder: (context, index) {
+                  final product = displayProducts[index];
+                  return ProductItem(
+                    id: product.id,
+                    nom: product.nom,
+                    prix: product.prix.toString(),
+                    imagePath: product.image,
+                    isChecked: product.checked,
+                    onChanged: (value) => _handleProductSelection(product, value),
+                    product: product,
+                  );
+                },
               ),
-            )
-          : GridView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-              ),
-              itemCount: filteredProducts.length,
-              itemBuilder: (context, index) {
-                final product = filteredProducts[index];
-                return ProductItem(
-                  product: filteredProducts[index],
-                  onChanged: (val) => _handleProductSelection(filteredProducts[index], val),
-                  id: product.id,
-                  nom: product.nom,
-                  prix: product.prix,
-                  imagePath: product.image,
-                  isChecked: product.checked,
-                );
-              },
-            ),
-    );
+      );
+    });
   }
 
   void _handleProductSelection(Product product, bool? value) {

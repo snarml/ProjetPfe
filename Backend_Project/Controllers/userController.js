@@ -3,9 +3,10 @@ import twilio from 'twilio';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken';
-import {v4 as uuidv4} from 'uuid'; // Importer uuid pour générer des identifiants uniques
+import { Op } from 'sequelize';
 // Charger les variables d'environnement
 dotenv.config({ path: './.env' });
+
 
 // Configurer Twilio
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -53,7 +54,7 @@ export const addUser = async (req, res) => {
     const token = jwt.sign(
       { full_name, num_tel, ville, pays, password },
       process.env.JWT_SECRET,
-      { expiresIn: '30m' } // expire dans 10 minutes
+      { expiresIn: '10m' } // expire dans 10 minutes
     );
 
     return res.status(200).json({
@@ -525,10 +526,31 @@ export const getConnectedUser = async (req, res) => {
 // fonction lister les utilisateurs pour l'admin
 export const listUsers = async (req, res) => {
   try {
-    const users = await User.findAll();
+    // Récupérer l'ID de l'admin connecté depuis req.user
+    const adminId = req.user.id;
+
+    // Récupérer tous les utilisateurs sauf l'admin
+    const users = await User.findAll({
+      where: {
+        id: { 
+          [Op.ne]: adminId // Op.ne = not equal
+        },
+        role: {
+          [Op.ne]: 'admin' // Exclure aussi les autres admins si nécessaire
+        }
+      },
+      
+    });
+
     res.json(users);
+
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
+    console.error('Erreur listUsers:', error);
+    res.status(500).json({ 
+      
+      message: "Erreur lors de la récupération des utilisateurs",
+      error: error.message 
+    });
   }
-}; 
+};

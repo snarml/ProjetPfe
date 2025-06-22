@@ -7,11 +7,11 @@ export const verifyToken = (req, res, next) => {
   console.log(' Headers:', req.headers); // ← Affiche tous les headers
 
   const authHeader = req.header('Authorization');
-  console.log('Received Authorization Header:', authHeader); // 🔥 Ajoute ça
+  console.log('Received Authorization Header:', authHeader); 
 
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('No token provided or incorrect format');  // 🔥 Ajouter ce log
+    console.log('No token provided or incorrect format');  
 
     return res.status(401).json({
       success: false,

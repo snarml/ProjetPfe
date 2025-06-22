@@ -1,9 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../Config/database.js';
-import User from './user.js';
-import Categorie from './categorieModel.js';
-import Commande from './commandeModel.js';
-import CommandeProduit from './commande_produit.js';
+
 
 const Produit = sequelize.define('Produit', {
   id: { 
@@ -17,23 +14,37 @@ const Produit = sequelize.define('Produit', {
   },
   description: DataTypes.TEXT,
   prix: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DOUBLE,
     allowNull: false
   },
   quantite: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DOUBLE,
     allowNull: false
   },
   image_url: { 
     type: DataTypes.STRING 
   }, 
+  disponible: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: true 
+  },
+  type_offre: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'vente',
+    allowNull: true // Permettre les valeurs nulles
+
+    
+  },
   utilisateur_id: { type: DataTypes.INTEGER },
-  categorie_id: { type: DataTypes.INTEGER }
+  categorie_id: { type: DataTypes.INTEGER , allowNull: false,references: {
+      model: 'Categorie',
+      key: 'id'
+    }}
 }, {
   tableName: 'produits',
-  timestamps: false,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  timestamps: true,
+
 });
 
 // Relations directes

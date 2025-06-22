@@ -7,70 +7,94 @@ class Chatbotmsg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fonction commune de navigation
+    // Fonction de navigation
     void navigateToChatbot() {
       Get.to(() => ChatbotWelcome());
     }
 
     return Align(
       alignment: Alignment.centerRight,
-      child: Card(
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        color: const Color(0xFFEAF3FC),
+      
+        
         child: InkWell(
-          // Utiliser InkWell au lieu de GestureDetector pour avoir l'effet visuel
           onTap: navigateToChatbot,
           borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Icône de flèche - maintenant sans InkWell supplémentaire
-                const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child:
-                      Icon(Icons.arrow_back, size: 25, color: Colors.black54),
+          child: Center(
+            child: Container(
+              // mettre un espace entre le search bar et le chatbot 
+              margin: const EdgeInsets.only(top: 10),
+              height: 70,
+              width: MediaQuery.of(context).size.width * 0.9,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.green, Colors.teal],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                const SizedBox(width: 8),
-
-                // Texte du message
-                const Flexible(
-                  child: Text(
-                    "مرحبا بك في مساعدك الزراعي! كيف يمكنني مساعدتك اليوم؟",
-                    style: TextStyle(fontSize: 14, color: Colors.black),
-                    textDirection: TextDirection.rtl,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-
-                const SizedBox(width: 12),
-
-                // Icône du chatbot
-                Container(
-                  height: 40,
-                  width: 40,
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 203, 221, 239),
-                    shape: BoxShape.circle,
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Icône de flèche
+                  const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: Icon(Icons.arrow_back, size: 25, color: Colors.white),
                   ),
-                  child: Center(
-                    child: Image.asset(
-                      'images/robot.png',
-                      height: 35,
-                      width: 35,
-                      fit: BoxFit.contain,
+                  const SizedBox(width: 8),
+            
+                  // Texte du message
+                  Flexible(
+                    child: Text(
+                      "مرحباً بك في مساعدك الزراعي! كيف يمكنني مساعدتك اليوم؟",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      textDirection: TextDirection.rtl,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+            
+                  // Icône du chatbot avec animation
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        'images/robot.png',
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      
     );
   }
 }

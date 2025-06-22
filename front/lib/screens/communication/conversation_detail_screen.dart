@@ -38,7 +38,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
   void _initSocket() {
     socket = IO.io(
-      'http://10.0.2.2:5000',
+      'http://127.0.0.1:5000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .enableAutoConnect()
@@ -65,7 +65,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   Future<void> _loadMessages() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:5000/api/messages/${widget.contact.id}'),
+        Uri.parse('http://127.0.0.1:5000/api/messages/${widget.contact.id}'),
         headers: {'Authorization': 'Bearer YOUR_TOKEN'},
       );
 

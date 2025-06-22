@@ -1,19 +1,20 @@
-//const Message = db.Message;
-//const User = db.User;
-
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { promisify } = require('util');
-const sanitizeFilename = require('sanitize-filename');
-const { Message, User } = require('../models');
-const AppError = require('../utils/appError');
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { promisify } from 'util';
+import sanitizeFilename from 'sanitize-filename';
+//import { Message, User, sequelize } from '../models/index.js';
+import AppError from '../utils/appError.js';
+import { User } from '../models/initAssociations.js';
+import {Message} from '../models/initAssociations.js';
+import sequelize from '../config/database.js';
+import { Op } from 'sequelize';
 
 // Configuration sécurisée de multer
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     try {
-      const uploadDir = path.join(__dirname, '../uploads');
+      const uploadDir = path.join(process.cwd(), 'uploads');
       
       // Vérifier/Créer le répertoire de manière asynchrone
       await promisify(fs.mkdir)(uploadDir, { recursive: true });
@@ -57,10 +58,10 @@ const upload = multer({
 });
 
 // Middleware pour le téléchargement de fichiers
-exports.uploadFile = upload.single('file');
+export const uploadFile = upload.single('file');
 
 // Fonction améliorée pour envoyer un message avec fichier
-exports.sendFileMessage = async (req, res, next) => {
+export const sendFileMessage = async (req, res, next) => {
   try {
     // Vérification du fichier
     if (!req.file) {
@@ -100,12 +101,12 @@ exports.sendFileMessage = async (req, res, next) => {
           { 
             model: User, 
             as: 'sender', 
-            attributes: ['id', 'username', 'profileImage'] 
+            attributes: ['id', 'full_name'] 
           },
           { 
             model: User, 
             as: 'receiver', 
-            attributes: ['id', 'username', 'profileImage'] 
+            attributes: ['id', 'full_name'] 
           }
         ],
         transaction
@@ -128,11 +129,78 @@ exports.sendFileMessage = async (req, res, next) => {
   } catch (err) {
     // Supprimer le fichier uploadé en cas d'erreur
     if (req.file) {
-      const filePath = path.join(__dirname, '../uploads', req.file.filename);
+      const filePath = path.join(process.cwd(), 'uploads', req.file.filename);
       if (fs.existsSync(filePath)) {
         await promisify(fs.unlink)(filePath);
       }
     }
+    next(err);
+  }
+};
+
+// Récupérer les messages entre l'utilisateur connecté et un destinataire
+export const getMessages = async (req, res, next) => {
+  try {
+    const receiverId = req.params.receiverId;
+    const userId = req.user.id;
+
+    // Récupère tous les messages entre userId et receiverId, triés par date
+    const messages = await Message.findAll({
+      where: {
+        [Op.or]: [
+          { senderId: userId, receiverId: receiverId },
+          { senderId: receiverId, receiverId: userId }
+        ]
+      },
+      order: [['createdAt', 'ASC']],
+      include: [
+        { model: User, as: 'sender', attributes: ['id', 'full_name'] },
+        { model: User, as: 'receiver', attributes: ['id', 'full_name'] }
+      ]
+    });
+
+    res.status(200).json({ status: 'success', data: { messages } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Envoyer un message texte simple
+export const sendMessage = async (req, res, next) => {
+  try {
+    const { receiverId, content, type = 'text' } = req.body;
+    const userId = req.user.id;
+
+    if (!receiverId || !content) {
+      return next(new AppError('Destinataire ou contenu manquant', 400));
+    }
+
+    // Vérifier si le destinataire existe
+    const receiver = await User.findByPk(receiverId);
+    if (!receiver) {
+      return next(new AppError('Destinataire introuvable', 404));
+    }
+
+    const message = await Message.create({
+      content,
+      type,
+      senderId: userId,
+      receiverId
+    });
+
+    const newMessage = await Message.findByPk(message.id, {
+      include: [
+        { model: User, as: 'sender', attributes: ['id', 'full_name'] },
+        { model: User, as: 'receiver', attributes: ['id', 'full_name'] }
+      ]
+    });
+
+    // Émettre l'événement via Socket.io
+    req.io.to(receiverId.toString()).emit('newMessage', newMessage);
+    req.io.to(userId.toString()).emit('messageSent', newMessage);
+
+    res.status(201).json({ status: 'success', data: { message: newMessage } });
+  } catch (err) {
     next(err);
   }
 };

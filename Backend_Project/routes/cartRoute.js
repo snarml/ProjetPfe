@@ -1,9 +1,10 @@
 import express from "express";
 import { ajouterProduit, modifierQuantite, supprimerProduit,afficherPanier, viderPanier,  } from "../Controllers/cartController.js";
+import {verifyToken} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 // Route pour ajouter un produit au panier
-router.post("/ajouter-produit", ajouterProduit);
+router.post("/ajouter-produit-panier",verifyToken, ajouterProduit);
 // Route pour modifier la quantité d'un produit dans le panier
 router.put("/modifier-quantite", modifierQuantite);
 // Route pour supprimer un produit du panier

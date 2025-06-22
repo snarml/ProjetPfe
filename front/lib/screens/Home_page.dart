@@ -20,12 +20,18 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(),
-      drawer: const NavBar(),
-      
+      drawer: Drawer(
+        child: NavBar(),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Searchbar(),
+            Searchbar(onSearchChanged: (String newQuery) {  },
+                onFilterPressed: () {
+                  // Action à effectuer lors de l'appui sur le bouton de filtrage
+                  print('Filtrer les produits');
+                }),
+            
             Chatbotmsg(),
             // Première carte (Produit agricole)
             BuildPostCard(

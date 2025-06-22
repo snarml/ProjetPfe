@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:bitakati_app/screens/signIn/login_page.dart';
-import 'package:bitakati_app/screens/signIn/signin_screen.dart';
 import 'package:bitakati_app/services/authServices.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -171,6 +170,16 @@ class _VerificationCodeState extends State<VerificationCode> {
                                       decoration: InputDecoration(
                                         counter: const SizedBox.shrink(),
                                         border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                                color: Colors.green)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: const BorderSide(
+                                                color: Colors.green)),
+                                        enabledBorder: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                             borderSide: const BorderSide(

@@ -1,7 +1,9 @@
+import 'package:bitakati_app/controllers/cartController.dart';
 import 'package:bitakati_app/screens/CheckoutPage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -11,6 +13,30 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  late final CartController cartController;
+  int? currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    cartController = Get.find<CartController>();
+    _loadCartData();
+  }
+
+  Future<void> _loadCartData() async {
+    try {
+      final token = await loadToken();
+      final prefs = await SharedPreferences.getInstance();
+      currentUserId = prefs.getInt('user_id');
+
+      if (token != null && currentUserId != null) {
+        await cartController.fetchCart(currentUserId!, token);
+      }
+    } catch (e) {
+      print('Erreur chargement panier: $e');
+    }
+  }
+
   // Liste des produits dans le panier (exemple)
   List<Map<String, dynamic>> cartItems = [
     {
@@ -72,14 +98,39 @@ class _CartPageState extends State<CartPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
-                final item = cartItems[index];
-                return _buildCartItem(item, index);
-              },
-            ),
+            child: Obx(() {
+              if (cartController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              
+              if (cartController.cartItems.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        'السلة فارغة',
+                        style: GoogleFonts.cairo(
+                          fontSize: 20,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: cartController.cartItems.length,
+                itemBuilder: (context, index) {
+                  final item = cartController.cartItems[index];
+                  return _buildCartItem(item, index);
+                },
+              );
+            }),
           ),
           _buildTotalSection(),
         ],
@@ -88,6 +139,61 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildCartItem(Map<String, dynamic> item, int index) {
+     print('🛒 Données du produit:');
+      print(item);
+    // Fonction pour construire l'image
+    Widget _buildProductImage(String? imageUrl) {
+      if (imageUrl == null || imageUrl.isEmpty) {
+        return Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[200],
+          ),
+          child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+        );
+      }
+
+      // Si c'est une URL complète
+      if (imageUrl.startsWith('http')) {
+        return Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                print('Erreur chargement image: $error');
+                return Container(
+                  color: Colors.grey[200],
+                  child: Icon(Icons.error_outline, color: Colors.grey[400]),
+                );
+              },
+            ),
+          ),
+        );
+      }
+
+      // Si c'est une image locale
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+            image: AssetImage(imageUrl),
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -99,18 +205,8 @@ class _CartPageState extends State<CartPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image du produit
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: AssetImage(item['image']),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            // Utiliser la nouvelle fonction pour l'image
+            _buildProductImage(item['image_url'] ?? item['image']),
             const SizedBox(width: 12),
             // Détails du produit
             Expanded(
@@ -118,7 +214,7 @@ class _CartPageState extends State<CartPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    item['name'],
+                    item['nom'] ?? item['name'] ?? 'منتج غير معروف', // Ajouter un fallback
                     style: GoogleFonts.cairo(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -236,43 +332,102 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  void _updateQuantity(int index, int change) {
-    setState(() {
-      final newQuantity = cartItems[index]['quantity'] + change;
-      if (newQuantity > 0) {
-        cartItems[index]['quantity'] = newQuantity;
-      } else {
-        _removeItem(index);
+  Future<void> _updateQuantity(int index, int change) async {
+    try {
+      final item = cartController.cartItems[index];
+      final newQuantity = item['quantite'] + change;
+      
+      if (newQuantity <= 0) {
+        await _removeItem(index);
+        return;
       }
-    });
-  }
 
-  void _removeItem(int index) {
-    setState(() {
-      final removedItem = cartItems.removeAt(index);
+      final token = await loadToken();
+      if (token == null || currentUserId == null) return;
+
+      final success = await cartController.updateQuantity(
+        currentUserId!,
+        item['produit_id'],
+        newQuantity,
+        token
+      );
+
+      if (success) {
+        await _loadCartData(); // Recharger le panier
+      }
+    } catch (e) {
+      print('Erreur modification quantité: $e');
       Get.snackbar(
-        'تم الحذف',
-        'تم إزالة ${removedItem['name']} من السلة',
+        'خطأ',
+        'حدث خطأ أثناء تحديث الكمية',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-    });
+    }
   }
 
-  void _clearCart() {
-    if (cartItems.isEmpty) return;
+  Future<void> _removeItem(int index) async {
+    try {
+      final item = cartController.cartItems[index];
+      final token = await loadToken();
+      if (token == null || currentUserId == null) return;
 
-    setState(() {
-      cartItems.clear();
+      final success = await cartController.removeItem(
+        currentUserId!,
+        item['produit_id'],
+        token
+      );
+
+      if (success) {
+        Get.snackbar(
+          'نجاح',
+          'تم حذف المنتج من السلة',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        await _loadCartData(); // Recharger le panier
+      }
+    } catch (e) {
+      print('Erreur suppression produit: $e');
       Get.snackbar(
-        'تم تفريغ السلة',
-        'تمت إزالة جميع المنتجات',
+        'خطأ',
+        'حدث خطأ أثناء حذف المنتج',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-    });
+    }
+  }
+
+  Future<void> _clearCart() async {
+    try {
+      final token = await loadToken();
+      if (token == null || currentUserId == null) return;
+
+      final success = await cartController.clearCart(currentUserId!, token);
+      
+      if (success) {
+        Get.snackbar(
+          'نجاح',
+          'تم تفريغ السلة بنجاح',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        await _loadCartData(); // Recharger le panier
+      }
+    } catch (e) {
+      print('Erreur vidage panier: $e');
+      Get.snackbar(
+        'خطأ',
+        'حدث خطأ أثناء تفريغ السلة',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   void _checkout() {
@@ -288,5 +443,7 @@ class _CartPageState extends State<CartPage> {
     // Ici vous pouvez ajouter la logique de paiement
     Get.to(() => CheckoutPage(totalAmount: totalPrice));
   }
+  
+  loadToken() {}
 }
 
